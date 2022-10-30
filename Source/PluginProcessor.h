@@ -13,6 +13,9 @@
 //==============================================================================
 /**
 */
+class dsp;
+class MapUI;
+
 class ICUSonificationAudioProcessor  : public juce::AudioProcessor
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
@@ -56,7 +59,16 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    //==============================================================================
+    void setFreq(float freq);
+    void setGain(float gain);
+    void setCutoff(float cutoff);
+    void setGate(bool gate);
+
 private:
+    MapUI* fUI;
+    dsp* fDSP;
+    float** outputs;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ICUSonificationAudioProcessor)
 };

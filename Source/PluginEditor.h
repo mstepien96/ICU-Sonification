@@ -25,6 +25,16 @@ public:
     void resized() override;
 
 private:
+    juce::Slider frequencySlider;
+    juce::Slider gainSlider;
+    juce::Slider cutoffSlider;
+    juce::ToggleButton onOffButton;
+
+    juce::Label frequencyLabel;
+    juce::Label gainLabel;
+    juce::Label cutoffLabel;
+    juce::Label onOffLabel;
+
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     ICUSonificationAudioProcessor& audioProcessor;
