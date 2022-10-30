@@ -1,25 +1,24 @@
 /*
   ==============================================================================
-
     This file contains the basic framework code for a JUCE plugin processor.
-
   ==============================================================================
 */
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Effect.h"
 
 //==============================================================================
 ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+    : AudioProcessor(BusesProperties()
+#if ! JucePlugin_IsMidiEffect
+#if ! JucePlugin_IsSynth
+        .withInput("Input", juce::AudioChannelSet::stereo(), true)
+#endif
+        .withOutput("Output", juce::AudioChannelSet::stereo(), true)
+#endif
+    )
 #endif
 {
 }
@@ -36,29 +35,29 @@ const juce::String ICUSonificationAudioProcessor::getName() const
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const
 {
-   #if JucePlugin_WantsMidiInput
+#if JucePlugin_WantsMidiInput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool ICUSonificationAudioProcessor::producesMidi() const
 {
-   #if JucePlugin_ProducesMidiOutput
+#if JucePlugin_ProducesMidiOutput
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 bool ICUSonificationAudioProcessor::isMidiEffect() const
 {
-   #if JucePlugin_IsMidiEffect
+#if JucePlugin_IsMidiEffect
     return true;
-   #else
+#else
     return false;
-   #endif
+#endif
 }
 
 double ICUSonificationAudioProcessor::getTailLengthSeconds() const
@@ -69,7 +68,7 @@ double ICUSonificationAudioProcessor::getTailLengthSeconds() const
 int ICUSonificationAudioProcessor::getNumPrograms()
 {
     return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int ICUSonificationAudioProcessor::getCurrentProgram()
@@ -77,84 +76,90 @@ int ICUSonificationAudioProcessor::getCurrentProgram()
     return 0;
 }
 
-void ICUSonificationAudioProcessor::setCurrentProgram (int index)
+void ICUSonificationAudioProcessor::setCurrentProgram(int index)
 {
 }
 
-const juce::String ICUSonificationAudioProcessor::getProgramName (int index)
+const juce::String ICUSonificationAudioProcessor::getProgramName(int index)
 {
     return {};
 }
 
-void ICUSonificationAudioProcessor::changeProgramName (int index, const juce::String& newName)
+void ICUSonificationAudioProcessor::changeProgramName(int index, const juce::String& newName)
 {
 }
 
 //==============================================================================
-void ICUSonificationAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
+void ICUSonificationAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    fDSP = new mydsp();
+    fDSP->init(sampleRate);
+    fUI = new MapUI();
+    fDSP->buildUserInterface(fUI);
+    inputs = new float* [2];
+    outputs = new float* [2];
+    for (int channel = 0; channel < 2; ++channel) {
+        inputs[channel] = new float[samplesPerBlock];
+        outputs[channel] = new float[samplesPerBlock];
+    }
 }
 
 void ICUSonificationAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+    delete fDSP;
+    delete fUI;
+    for (int channel = 0; channel < 2; ++channel) {
+        delete[] inputs[channel];
+        delete[] outputs[channel];
+    }
+    delete[] inputs;
+    delete[] outputs;
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-bool ICUSonificationAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
+bool ICUSonificationAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
+#if JucePlugin_IsMidiEffect
+    juce::ignoreUnused(layouts);
     return true;
-  #else
+#else
     // This is the place where you check if the layout is supported.
     // In this template code we only support mono or stereo.
     // Some plugin hosts, such as certain GarageBand versions, will only
     // load plugins that support stereo bus layouts.
     if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+        && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
         return false;
 
     // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
+#if ! JucePlugin_IsSynth
     if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
         return false;
-   #endif
+#endif
 
     return true;
-  #endif
+#endif
 }
 #endif
 
-void ICUSonificationAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
+void ICUSonificationAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
-    auto totalNumInputChannels  = getTotalNumInputChannels();
+    auto totalNumInputChannels = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
 
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    for (int channel = 0; channel < totalNumInputChannels; ++channel) {
+        for (int i = 0; i < buffer.getNumSamples(); i++) {
+            inputs[channel][i] = *buffer.getWritePointer(channel, i);
+        }
+    }
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
+    fDSP->compute(buffer.getNumSamples(), NULL, outputs);
 
-        // ..do something to the data...
+    for (int channel = 0; channel < totalNumOutputChannels; ++channel) {
+        for (int i = 0; i < buffer.getNumSamples(); i++) {
+            *buffer.getWritePointer(channel, i) = outputs[channel][i];
+        }
     }
 }
 
@@ -166,18 +171,18 @@ bool ICUSonificationAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* ICUSonificationAudioProcessor::createEditor()
 {
-    return new ICUSonificationAudioProcessorEditor (*this);
+    return new ICUSonificationAudioProcessorEditor(*this);
 }
 
 //==============================================================================
-void ICUSonificationAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
+void ICUSonificationAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
 }
 
-void ICUSonificationAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
+void ICUSonificationAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
@@ -188,4 +193,15 @@ void ICUSonificationAudioProcessor::setStateInformation (const void* data, int s
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new ICUSonificationAudioProcessor();
+}
+
+//==============================================================================
+void ICUSonificationAudioProcessor::setDelay(float delay)
+{
+    fUI->setParamValue("delay", delay);
+}
+
+void ICUSonificationAudioProcessor::setFeedback(float feedback)
+{
+    fUI->setParamValue("feedback", feedback);
 }

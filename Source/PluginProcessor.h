@@ -1,8 +1,6 @@
 /*
   ==============================================================================
-
     This file contains the basic framework code for a JUCE plugin processor.
-
   ==============================================================================
 */
 
@@ -13,10 +11,13 @@
 //==============================================================================
 /**
 */
-class ICUSonificationAudioProcessor  : public juce::AudioProcessor
-                            #if JucePlugin_Enable_ARA
-                             , public juce::AudioProcessorARAExtension
-                            #endif
+class dsp;
+class MapUI;
+
+class ICUSonificationAudioProcessor : public juce::AudioProcessor
+#if JucePlugin_Enable_ARA
+    , public juce::AudioProcessorARAExtension
+#endif
 {
 public:
     //==============================================================================
@@ -24,14 +25,14 @@ public:
     ~ICUSonificationAudioProcessor() override;
 
     //==============================================================================
-    void prepareToPlay (double sampleRate, int samplesPerBlock) override;
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
     void releaseResources() override;
 
-   #ifndef JucePlugin_PreferredChannelConfigurations
-    bool isBusesLayoutSupported (const BusesLayout& layouts) const override;
-   #endif
+#ifndef JucePlugin_PreferredChannelConfigurations
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+#endif
 
-    void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
@@ -48,15 +49,23 @@ public:
     //==============================================================================
     int getNumPrograms() override;
     int getCurrentProgram() override;
-    void setCurrentProgram (int index) override;
-    const juce::String getProgramName (int index) override;
-    void changeProgramName (int index, const juce::String& newName) override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
 
     //==============================================================================
-    void getStateInformation (juce::MemoryBlock& destData) override;
-    void setStateInformation (const void* data, int sizeInBytes) override;
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
+
+    //==============================================================================
+    void setDelay(float delay);
+    void setFeedback(float feedback);
 
 private:
+    MapUI* fUI;
+    dsp* fDSP;
+    float** inputs;
+    float** outputs;
     //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ICUSonificationAudioProcessor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ICUSonificationAudioProcessor)
 };

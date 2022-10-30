@@ -1,8 +1,6 @@
 /*
   ==============================================================================
-
     This file contains the basic framework code for a JUCE plugin editor.
-
   ==============================================================================
 */
 
@@ -14,20 +12,26 @@
 //==============================================================================
 /**
 */
-class ICUSonificationAudioProcessorEditor  : public juce::AudioProcessorEditor
+class ICUSonificationAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-    ICUSonificationAudioProcessorEditor (ICUSonificationAudioProcessor&);
+    ICUSonificationAudioProcessorEditor(ICUSonificationAudioProcessor&);
     ~ICUSonificationAudioProcessorEditor() override;
 
     //==============================================================================
-    void paint (juce::Graphics&) override;
+    void paint(juce::Graphics&) override;
     void resized() override;
 
 private:
+    juce::Slider delaySlider;
+    juce::Slider feedbackSlider;
+
+    juce::Label delayLabel;
+    juce::Label feedbackLabel;
+
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     ICUSonificationAudioProcessor& audioProcessor;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ICUSonificationAudioProcessorEditor)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ICUSonificationAudioProcessorEditor)
 };
