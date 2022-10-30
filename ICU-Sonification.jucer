@@ -4,6 +4,7 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="UBJXMT" name="ICU-Sonification">
     <GROUP id="{52B6526B-3C33-1338-0B7E-2813B3CC0515}" name="Source">
+      <FILE id="Z3wJN4" name="FaustSynth.h" compile="0" resource="0" file="../../../../../Downloads/mono/mono/MonoSynth/Source/FaustSynth.h"/>
       <FILE id="Dusy2G" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="dquqS6" name="PluginProcessor.h" compile="0" resource="0"
