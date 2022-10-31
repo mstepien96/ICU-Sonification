@@ -13,6 +13,9 @@
 //==============================================================================
 /**
 */
+class FaustPolyEngine;
+class audio;
+
 class ICUSonificationAudioProcessor  : public juce::AudioProcessor
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
@@ -56,7 +59,14 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
+    void keyOn(int pitch, int velocity);
+    void keyOff(int pitch);
+    void setCutoff(float cutoff);
+
 private:
+    audio* driver;
+    FaustPolyEngine* faustObject;
+    float** outputs;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ICUSonificationAudioProcessor)
 };
