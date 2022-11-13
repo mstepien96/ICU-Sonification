@@ -15,6 +15,27 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
+    
+    // File reader initialization
+    fileComp.reset (new juce::FilenameComponent ("fileComp",
+                                                 {},
+                                                 false,
+                                                 false,
+                                                 false,
+                                                 {},
+                                                 {},
+                                                 "Select file to open"));
+    
+    addAndMakeVisible(fileComp.get());
+    // Listener in order to update after a file has been selected
+    fileComp->addListener(this);
+    
+    // Text Field initialization
+    textContent.reset(new juce::TextEditor());
+    addAndMakeVisible(textContent.get());
+    textContent->setMultiLine(true);
+    textContent->setReadOnly(true);
+    textContent->setCaretVisible(false);
     setSize (400, 300);
 }
 
@@ -37,4 +58,7 @@ void ICUSonificationAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    
+    fileComp->setBounds(10, 10, getWidth() - 20, 20);
+    textContent->setBounds(10, 40, getWidth() - 20, getHeight() - 50);
 }
