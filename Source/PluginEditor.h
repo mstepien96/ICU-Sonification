@@ -13,6 +13,8 @@
 
 //==============================================================================
 /**
+ should add this when it is used
+ public juce::HighResolutionTimer
 */
 class ICUSonificationAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::FilenameComponentListener
 {
@@ -46,8 +48,26 @@ public:
         while(!inputStream.isExhausted()) {
             counter++;
             auto line = inputStream.readNextLine();
+            juce::String trimmed = line.trim();
+            juce::String trimmed2 = trimmed.trim();
+        
+            juce::StringArray tokens;
             
-            textContent->insertTextAtCaret(line + juce::newLine);
+            tokens.addTokens(trimmed2, "  ");
+            
+            //textContent->insertTextAtCaret(line + juce::newLine);
+            for (int i=0; i<tokens.size()-1; i++) {
+                
+                juce::String trimmedToken = tokens[i].trimCharactersAtEnd("\t");
+                
+                if (counter > 3) {
+                    textContent->insertTextAtCaret(trimmedToken + " ");
+                }
+            }
+            
+            if (counter > 3) {
+                textContent->insertTextAtCaret(juce::newLine);
+            }
             
             if (counter > 253) {
                 break;
@@ -56,7 +76,6 @@ public:
     }
     
     // Changing path for file and update the filename
-
     void filenameComponentChanged(juce::FilenameComponent* fileComponentThatHasChanged) override {
         if (fileComponentThatHasChanged == fileComp.get()) {
             readFile (fileComp->getCurrentFileText());
