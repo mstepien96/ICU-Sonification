@@ -12,10 +12,7 @@
 #include "PluginProcessor.h"
 
 //==============================================================================
-/**
- should add this when it is used
- public juce::HighResolutionTimer
-*/
+// public juce::HighResolutionTimer
 class ICUSonificationAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::FilenameComponentListener
 {
 public:
@@ -42,34 +39,31 @@ public:
         // Clearing after loading
         textContent->clear();
         
-        // Counter used in ensuring it doesn't load the 12 million rows
-        juce::int64 counter = 1;
+        // Counter used in ensuring we don't load the 12 million rows
+        juce::int64 counter = 0;
         
         while(!inputStream.isExhausted()) {
-            counter++;
             auto line = inputStream.readNextLine();
             juce::String trimmed = line.trim();
-            juce::String trimmed2 = trimmed.trim();
-        
             juce::StringArray tokens;
             
-            tokens.addTokens(trimmed2, "  ");
+            tokens.addTokens(trimmed, "\t");
             
-            //textContent->insertTextAtCaret(line + juce::newLine);
-            for (int i=0; i<tokens.size()-1; i++) {
+            // Removing annotations from the input
+            if (counter > 1) {
                 
-                juce::String trimmedToken = tokens[i].trimCharactersAtEnd("\t");
-                
-                if (counter > 3) {
-                    textContent->insertTextAtCaret(trimmedToken + " ");
+                // Increments through every entry in our StringArray
+                for (int i=0; i < tokens.size()-1; i++) {
+                    textContent->insertTextAtCaret(tokens[i] + " ");
                 }
-            }
-            
-            if (counter > 3) {
+                
+                // Adding a new line
                 textContent->insertTextAtCaret(juce::newLine);
             }
             
-            if (counter > 253) {
+            // Breaker
+            counter++;
+            if (counter > 252) {
                 break;
             }
         }
@@ -93,4 +87,6 @@ private:
     std::unique_ptr<juce::FilenameComponent> fileComp;
     /// Text field
     std::unique_ptr<juce::TextEditor> textContent;
+    /// Timer
+    std::unique_ptr<juce::HighResolutionTimer> timer;
 };
