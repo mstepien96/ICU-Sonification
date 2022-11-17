@@ -30,35 +30,57 @@ public:
         
         auto fileText = fileToRead.loadFileAsString();
         
+        
         juce::FileInputStream inputStream(fileToRead);
         
         if (!inputStream.openedOk()) {
             return;
         }
         
+        // Data container
+        float dataArray[300][2];
+        
         // Clearing after loading
         textContent->clear();
         
         // Counter used in ensuring we don't load the 12 million rows
         juce::int64 counter = 0;
+        // Counter for array indexing
+        juce::int64 valueIndex = 0;
         
         while(!inputStream.isExhausted()) {
             auto line = inputStream.readNextLine();
             juce::String trimmed = line.trim();
             juce::StringArray tokens;
             
+            // Splitting String into array of subStrings
             tokens.addTokens(trimmed, "\t");
             
             // Removing annotations from the input
             if (counter > 1) {
-                
                 // Increments through every entry in our StringArray
-                for (int i=0; i < tokens.size()-1; i++) {
-                    textContent->insertTextAtCaret(tokens[i] + " ");
+                for (int i = 0; i < tokens.size() - 1; i++) {
+                    // Char to String
+                    juce::String token = tokens[i].toStdString();
+                    
+                    if (token != "") {
+                        textContent->insertTextAtCaret(token + " ");
+                        // String to Float
+                        float floatValue = token.getFloatValue();
+                        // Inserting value in respective entry & incrementing index
+                        dataArray[counter][valueIndex] = floatValue;
+                        valueIndex++;
+                        
+                        // print to console
+                        DBG(token);
+                    }
                 }
                 
                 // Adding a new line
                 textContent->insertTextAtCaret(juce::newLine);
+                
+                // Resetting our array indexer
+                valueIndex = 0;
             }
             
             // Breaker
