@@ -60,6 +60,8 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void hiResTimerCallback();  // High Resolution Timer for sending data from JUCE to Faust engine
+
+    int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
     
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 

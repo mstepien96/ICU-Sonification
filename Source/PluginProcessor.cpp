@@ -37,20 +37,26 @@ const juce::String ICUSonificationAudioProcessor::getName() const
     return JucePlugin_Name;
 }
 
+int ICUSonificationAudioProcessor::mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax) {
+    float mappingFactor = (freqMax - freqMin) / (dataMax - dataMin);
+    int ECGdataMapped = int((ECGdata - dataMin) * mappingFactor + dataMin);
+
+    return ECGdataMapped;
+}
+
 void ICUSonificationAudioProcessor::hiResTimerCallback() {
     timeMilliseconds++;
     
     // Logic for sample rate
     if (timeMilliseconds % 4 == 0 && isPlaying && dataRead) {
         // Update Faust
-        int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
-        int freqToSonify2 = std::max(freqToSonify, 50);
-        fUI->setParamValue("freq", freqToSonify2);
+        int freqToSonify = mapDataToFreq(dataArray[ECGcounter][1], -0.1, 0.5, 50, 2000);
+
+        // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
+        // int freqToSonify2 = std::max(freqToSonify, 50);
+        fUI->setParamValue("freq", freqToSonify);
         ECGcounter++;
     }
-    //else if (isPlaying) {
-    //    fUI->setParamValue("freq", 200);
-    //}
 }
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const
