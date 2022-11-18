@@ -13,7 +13,7 @@
 //==============================================================================
 /**
 */
-class ICUSonificationAudioProcessor  : public juce::AudioProcessor
+class ICUSonificationAudioProcessor  : public juce::AudioProcessor, public juce::HighResolutionTimer
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
                             #endif
@@ -55,6 +55,14 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+    
+    void hiResTimerCallback();
+    
+    unsigned long timeMilliseconds = 0;
+    
+    bool isPlaying = false;
+    
+    float dataArray[3000][2];
 
 private:
     //==============================================================================

@@ -22,6 +22,7 @@ ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
                        )
 #endif
 {
+    startTimer(1);
 }
 
 ICUSonificationAudioProcessor::~ICUSonificationAudioProcessor()
@@ -32,6 +33,21 @@ ICUSonificationAudioProcessor::~ICUSonificationAudioProcessor()
 const juce::String ICUSonificationAudioProcessor::getName() const
 {
     return JucePlugin_Name;
+}
+
+void ICUSonificationAudioProcessor::hiResTimerCallback() {
+    timeMilliseconds++;
+    
+    // Logic for sample rate
+    if (timeMilliseconds % 4 == 0 && isPlaying) {
+        // Update Faust
+        int a = 0;
+        
+        /// parameters
+        /// 1. Faust Name
+        /// 2. Value for component - careful for range
+        // fUI->setParamValue("<faustSliderName>", mapVal);
+    }
 }
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const

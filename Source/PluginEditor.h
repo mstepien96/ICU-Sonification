@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+using namespace juce;
 
 //==============================================================================
 // public juce::HighResolutionTimer
@@ -30,15 +31,11 @@ public:
         
         auto fileText = fileToRead.loadFileAsString();
         
-        
         juce::FileInputStream inputStream(fileToRead);
         
         if (!inputStream.openedOk()) {
             return;
         }
-        
-        // Data container
-        float dataArray[300][2];
         
         // Clearing after loading
         textContent->clear();
@@ -68,7 +65,7 @@ public:
                         // String to Float
                         float floatValue = token.getFloatValue();
                         // Inserting value in respective entry & incrementing index
-                        dataArray[counter][valueIndex] = floatValue;
+                        audioProcessor.dataArray[counter][valueIndex] = floatValue;
                         valueIndex++;
                         
                         // print to console
@@ -97,6 +94,8 @@ public:
             readFile (fileComp->getCurrentFileText());
         }
     }
+    
+    
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -111,4 +110,6 @@ private:
     std::unique_ptr<juce::TextEditor> textContent;
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
+    
+    TextButton playPause;
 };

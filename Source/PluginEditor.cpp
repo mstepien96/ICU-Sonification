@@ -36,7 +36,16 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     textContent->setMultiLine(true);
     textContent->setReadOnly(true);
     textContent->setCaretVisible(false);
-    setSize (400, 300);
+    setSize (800, 600);
+    
+    // Button
+    addAndMakeVisible(playPause);
+    playPause.setButtonText("Start/Stop");
+    
+    playPause.onClick = [this]
+    {
+        audioProcessor.isPlaying = !audioProcessor.isPlaying;
+    };
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -51,7 +60,7 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    // g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
 }
 
 void ICUSonificationAudioProcessorEditor::resized()
@@ -60,5 +69,8 @@ void ICUSonificationAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     fileComp->setBounds(10, 10, getWidth() - 20, 20);
-    textContent->setBounds(10, 40, getWidth() - 20, getHeight() - 50);
+    textContent->setBounds(10, 40, getWidth() - 20, 100);
+    playPause.setBounds(10, 150, getWidth() - 20, 20);
 }
+
+
