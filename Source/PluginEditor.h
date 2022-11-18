@@ -82,7 +82,8 @@ public:
             
             // Breaker
             counter++;
-            if (counter > 252) {
+            if (counter > 2502) {  // was 252
+                audioProcessor.dataRead = true;
                 break;
             }
         }

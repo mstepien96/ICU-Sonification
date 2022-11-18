@@ -8,6 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "FaustEngine.h"
+#include <algorithm>
 
 //==============================================================================
 ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
@@ -39,15 +41,16 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
     timeMilliseconds++;
     
     // Logic for sample rate
-    if (timeMilliseconds % 4 == 0 && isPlaying) {
+    if (timeMilliseconds % 4 == 0 && isPlaying && dataRead) {
         // Update Faust
-        int a = 0;
-        
-        /// parameters
-        /// 1. Faust Name
-        /// 2. Value for component - careful for range
-        // fUI->setParamValue("<faustSliderName>", mapVal);
+        int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
+        int freqToSonify2 = std::max(freqToSonify, 50);
+        fUI->setParamValue("freq", freqToSonify2);
+        ECGcounter++;
     }
+    //else if (isPlaying) {
+    //    fUI->setParamValue("freq", 200);
+    //}
 }
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const
@@ -109,8 +112,14 @@ void ICUSonificationAudioProcessor::changeProgramName (int index, const juce::St
 //==============================================================================
 void ICUSonificationAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    fDSP = new mydsp();
+    fDSP->init(sampleRate);
+    fUI = new MapUI();
+    fDSP->buildUserInterface(fUI);
+    outputs = new float* [2];
+    for (int channel = 0; channel < 2; ++channel) {
+        outputs[channel] = new float[samplesPerBlock];
+    }
 }
 
 void ICUSonificationAudioProcessor::releaseResources()
@@ -157,8 +166,10 @@ void ICUSonificationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     // This is here to avoid people getting screaming feedback
     // when they first compile a plugin, but obviously you don't need to keep
     // this code if your algorithm always overwrites all the output channels.
-    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
+    // for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
+    //     buffer.clear (i, 0, buffer.getNumSamples());
+
+    fDSP->compute(buffer.getNumSamples(), NULL, outputs);
 
     // This is the place where you'd normally do the guts of your plugin's
     // audio processing...
@@ -168,9 +179,9 @@ void ICUSonificationAudioProcessor::processBlock (juce::AudioBuffer<float>& buff
     // interleaved by keeping the same state.
     for (int channel = 0; channel < totalNumInputChannels; ++channel)
     {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+        for (int i = 0; i < buffer.getNumSamples(); i++) {
+            *buffer.getWritePointer(channel, i) = outputs[channel][i];
+        }
     }
 }
 
@@ -205,3 +216,4 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
     return new ICUSonificationAudioProcessor();
 }
+

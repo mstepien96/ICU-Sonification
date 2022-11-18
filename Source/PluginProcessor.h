@@ -13,6 +13,9 @@
 //==============================================================================
 /**
 */
+class dsp;
+class MapUI;
+
 class ICUSonificationAudioProcessor  : public juce::AudioProcessor, public juce::HighResolutionTimer
                             #if JucePlugin_Enable_ARA
                              , public juce::AudioProcessorARAExtension
@@ -56,15 +59,21 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    void hiResTimerCallback();
+    void hiResTimerCallback();  // High Resolution Timer for sending data from JUCE to Faust engine
     
-    unsigned long timeMilliseconds = 0;
+    unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
+
+    int ECGcounter = 0;  // counter for accessing datapoints from dataArray 
     
-    bool isPlaying = false;
+    bool isPlaying = false;  // turns audio on/off
+    bool dataRead = false;  // has data been read yet?
     
-    float dataArray[3000][2];
+    float dataArray[8000][2];  // float array for reading in ECG data
 
 private:
+    MapUI* fUI;
+    dsp* fDSP;
+    float** outputs;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ICUSonificationAudioProcessor)
 };
