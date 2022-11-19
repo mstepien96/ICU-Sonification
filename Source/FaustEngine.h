@@ -624,8 +624,12 @@ private:
 
     FAUSTFLOAT fHslider0;
     int fSampleRate;
-    float fConst0;
+    float fConst1;
     float fRec0[2];
+    float fConst2;
+    float fConst3;
+    FAUSTFLOAT fButton0;
+    float fRec1[2];
 
 public:
 
@@ -635,6 +639,7 @@ public:
         m->declare("library_path0", "/libraries/stdfaust.lib");
         m->declare("library_path1", "/libraries/maths.lib");
         m->declare("library_path2", "/libraries/platform.lib");
+        m->declare("library_path3", "/libraries/signals.lib");
         m->declare("maths_lib_author", "GRAME");
         m->declare("maths_lib_copyright", "GRAME");
         m->declare("maths_lib_license", "LGPL with exception");
@@ -643,6 +648,8 @@ public:
         m->declare("name", "untitled3");
         m->declare("platform_lib_name", "Generic Platform Library");
         m->declare("platform_lib_version", "0.2");
+        m->declare("signals_lib_name", "Faust Signal Routing Library");
+        m->declare("signals_lib_version", "0.3");
         m->declare("version", "2.52.3");
     }
 
@@ -658,16 +665,23 @@ public:
 
     virtual void instanceConstants(int sample_rate) {
         fSampleRate = sample_rate;
-        fConst0 = 1.0f / std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
+        float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
+        fConst1 = 1.0f / fConst0;
+        fConst2 = 44.1f / fConst0;
+        fConst3 = 1.0f - fConst2;
     }
 
     virtual void instanceResetUserInterface() {
         fHslider0 = FAUSTFLOAT(1e+02f);
+        fButton0 = FAUSTFLOAT(0.0f);
     }
 
     virtual void instanceClear() {
         for (int l0 = 0; l0 < 2; l0 = l0 + 1) {
             fRec0[l0] = 0.0f;
+        }
+        for (int l1 = 0; l1 < 2; l1 = l1 + 1) {
+            fRec1[l1] = 0.0f;
         }
     }
 
@@ -692,19 +706,23 @@ public:
     virtual void buildUserInterface(UI* ui_interface) {
         ui_interface->openVerticalBox("untitled3");
         ui_interface->addHorizontalSlider("freq", &fHslider0, FAUSTFLOAT(1e+02f), FAUSTFLOAT(5e+01f), FAUSTFLOAT(2e+03f), FAUSTFLOAT(0.01f));
+        ui_interface->addButton("gate", &fButton0);
         ui_interface->closeBox();
     }
 
     virtual void compute(int count, FAUSTFLOAT** RESTRICT inputs, FAUSTFLOAT** RESTRICT outputs) {
         FAUSTFLOAT* output0 = outputs[0];
         FAUSTFLOAT* output1 = outputs[1];
-        float fSlow0 = fConst0 * float(fHslider0);
+        float fSlow0 = fConst1 * float(fHslider0);
+        float fSlow1 = fConst2 * float(fButton0);
         for (int i0 = 0; i0 < count; i0 = i0 + 1) {
             fRec0[0] = fSlow0 + (fRec0[1] - std::floor(fSlow0 + fRec0[1]));
-            float fTemp0 = std::sin(6.2831855f * fRec0[0]);
+            fRec1[0] = fSlow1 + fConst3 * fRec1[1];
+            float fTemp0 = fRec1[0] * std::sin(6.2831855f * fRec0[0]);
             output0[i0] = FAUSTFLOAT(fTemp0);
             output1[i0] = FAUSTFLOAT(fTemp0);
             fRec0[1] = fRec0[0];
+            fRec1[1] = fRec1[0];
         }
     }
 

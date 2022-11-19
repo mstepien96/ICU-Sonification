@@ -62,7 +62,7 @@ public:
     void hiResTimerCallback();  // High Resolution Timer for sending data from JUCE to Faust engine
 
     int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
-    
+
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
     int ECGcounter = 0;  // counter for accessing datapoints from dataArray 
@@ -76,6 +76,7 @@ private:
     MapUI* fUI;
     dsp* fDSP;
     float** outputs;
+    
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ICUSonificationAudioProcessor)
 };

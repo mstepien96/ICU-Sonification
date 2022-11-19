@@ -41,9 +41,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     // Button
     addAndMakeVisible(playPause);
     playPause.setButtonText("Start/Stop");
-    
-    playPause.onClick = [this]
-    {
+    playPause.onClick = [this] {
         audioProcessor.isPlaying = !audioProcessor.isPlaying;
     };
 }

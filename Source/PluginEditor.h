@@ -61,7 +61,7 @@ public:
                     juce::String token = tokens[i].toStdString();
                     
                     if (token != "") {
-                        textContent->insertTextAtCaret(token + " ");
+                        //textContent->insertTextAtCaret(token + " ");
                         // String to Float
                         float floatValue = token.getFloatValue();
                         // Inserting value in respective entry & incrementing index
@@ -69,12 +69,12 @@ public:
                         valueIndex++;
                         
                         // print to console
-                        DBG(token);
+                        //DBG(token);
                     }
                 }
                 
                 // Adding a new line
-                textContent->insertTextAtCaret(juce::newLine);
+                //textContent->insertTextAtCaret(juce::newLine);
                 
                 // Resetting our array indexer
                 valueIndex = 0;
@@ -84,6 +84,7 @@ public:
             counter++;
             if (counter > 2502) {  // was 252
                 audioProcessor.dataRead = true;
+                textContent->insertTextAtCaret("Reading finished");
                 break;
             }
         }

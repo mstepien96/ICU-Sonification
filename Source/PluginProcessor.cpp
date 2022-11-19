@@ -46,17 +46,40 @@ int ICUSonificationAudioProcessor::mapDataToFreq(float ECGdata, float dataMin, f
 
 void ICUSonificationAudioProcessor::hiResTimerCallback() {
     timeMilliseconds++;
-    
-    // Logic for sample rate
-    if (timeMilliseconds % 4 == 0 && isPlaying && dataRead) {
-        // Update Faust
-        int freqToSonify = mapDataToFreq(dataArray[ECGcounter][1], -0.1, 0.5, 50, 2000);
 
-        // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
-        // int freqToSonify2 = std::max(freqToSonify, 50);
-        fUI->setParamValue("freq", freqToSonify);
-        ECGcounter++;
+    //if (isPlaying == false) {
+    //    fUI->setParamValue("gate", 0);
+    //}
+
+    if (isPlaying) {
+        fUI->setParamValue("gate", 1);
+
+        if (dataRead && timeMilliseconds % 4 == 0) {
+            int freqToSonify = mapDataToFreq(dataArray[ECGcounter][1], -0.1, 0.5, 50, 2000);
+
+            //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
+            //    // int freqToSonify2 = std::max(freqToSonify, 50);
+            fUI->setParamValue("freq", freqToSonify);
+            ECGcounter++;
+        }
     }
+    else if (!isPlaying) {
+        fUI->setParamValue("freq", 500);
+    }
+    
+    
+
+
+    // Logic for sample rate
+    //if (timeMilliseconds % 4 == 0 && isPlaying && dataRead) {
+    //    // Update Faust
+    //    int freqToSonify = mapDataToFreq(dataArray[ECGcounter][1], -0.1, 0.5, 50, 2000);
+
+    //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
+    //    // int freqToSonify2 = std::max(freqToSonify, 50);
+    //    fUI->setParamValue("freq", freqToSonify);
+    //    ECGcounter++;
+    //}
 }
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const
@@ -126,12 +149,17 @@ void ICUSonificationAudioProcessor::prepareToPlay (double sampleRate, int sample
     for (int channel = 0; channel < 2; ++channel) {
         outputs[channel] = new float[samplesPerBlock];
     }
+    fUI->setParamValue("gate", 1);
 }
 
 void ICUSonificationAudioProcessor::releaseResources()
 {
-    // When playback stops, you can use this as an opportunity to free up any
-    // spare memory, etc.
+ /*   delete fDSP;
+    delete fUI;
+    for (int channel = 0; channel < 2; ++channel) {
+        delete[] outputs[channel];
+    }
+    delete[] outputs;*/
 }
 
 #ifndef JucePlugin_PreferredChannelConfigurations
