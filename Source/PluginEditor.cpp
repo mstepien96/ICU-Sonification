@@ -79,7 +79,13 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    // g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);
+    g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
+    if (audioProcessor.dataRead) {
+        textContent->clear();
+        currentTime = juce::String(audioProcessor.ECGcounter * 0.004);
+        textContent->insertTextAtCaret("Current Time: " + currentTime + " s" + juce::newLine);
+        textContent->insertTextAtCaret("Recording Length: XXXXXX s");
+    }
 }
 
 void ICUSonificationAudioProcessorEditor::resized()
@@ -93,5 +99,3 @@ void ICUSonificationAudioProcessorEditor::resized()
     Rewind.setBounds(100, 200, 20, 20);
     FastForward.setBounds(100, 250, 20, 20);
 }
-
-

@@ -96,8 +96,6 @@ public:
             readFile (fileComp->getCurrentFileText());
         }
     }
-    
-    
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -124,4 +122,7 @@ private:
     TextButton FastForward;
     Label RewindLabel;
     Label FastForwardLabel;
+
+    /// Timesteps
+    String currentTime;
 };
