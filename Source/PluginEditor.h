@@ -66,6 +66,9 @@ public:
                         float floatValue = token.getFloatValue();
                         // Inserting value in respective entry & incrementing index
                         audioProcessor.dataArray[counter][valueIndex] = floatValue;
+                        if (valueIndex == 1) {
+                            audioProcessor.data.push_back(floatValue);
+                        }
                         valueIndex++;
                         
                         // print to console

@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <vector>
 
 //==============================================================================
 /**
@@ -57,12 +58,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void hiResTimerCallback();
-    
     unsigned long timeMilliseconds = 0;
-    
     bool isPlaying = false;
-    
     float dataArray[3000][2];
+    std::vector<float> data;
 
 private:
     //==============================================================================

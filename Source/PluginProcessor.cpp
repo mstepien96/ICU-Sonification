@@ -43,6 +43,7 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
         // Update Faust
         int a = 0;
         
+        DBG(data.back());
         /// parameters
         /// 1. Faust Name
         /// 2. Value for component - careful for range
