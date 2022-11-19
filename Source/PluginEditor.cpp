@@ -8,6 +8,7 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include <algorithm>
 
 //==============================================================================
 ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSonificationAudioProcessor& p)
@@ -38,17 +39,32 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     textContent->setCaretVisible(false);
     setSize (800, 600);
     
-    // Button
+    // Play/Pause Button
     addAndMakeVisible(playPause);
     playPause.onClick = [this] {
-        //audioProcessor.isPlaying = !audioProcessor.isPlaying;
         audioProcessor.isPlaying = playPause.getToggleState();
         audioProcessor.setGate(audioProcessor.isPlaying);
     };
-
     addAndMakeVisible(playPauseLabel);
     playPauseLabel.setText("Play/Pause", juce::dontSendNotification);
     playPauseLabel.attachToComponent(&playPause, true);
+
+    /// Rewind and Fast Forward
+    addAndMakeVisible(Rewind);
+    Rewind.onClick = [this] {
+        audioProcessor.ECGcounter = std::max(0, audioProcessor.ECGcounter - 250);
+    };
+    addAndMakeVisible(RewindLabel);
+    RewindLabel.setText("Rewind", juce::dontSendNotification);
+    RewindLabel.attachToComponent(&Rewind, true);
+
+    addAndMakeVisible(FastForward);
+    FastForward.onClick = [this] {
+        audioProcessor.ECGcounter = std::min(int(std::size(audioProcessor.dataArray)), audioProcessor.ECGcounter + 250);
+    };
+    addAndMakeVisible(FastForwardLabel);
+    FastForwardLabel.setText("Fast Forward", juce::dontSendNotification);
+    FastForwardLabel.attachToComponent(&FastForward, true);
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -74,6 +90,8 @@ void ICUSonificationAudioProcessorEditor::resized()
     fileComp->setBounds(10, 10, getWidth() - 20, 20);
     textContent->setBounds(10, 40, getWidth() - 20, 100);
     playPause.setBounds(100, 150, getWidth() - 20, 20);
+    Rewind.setBounds(100, 200, 20, 20);
+    FastForward.setBounds(100, 250, 20, 20);
 }
 
 

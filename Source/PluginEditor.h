@@ -108,11 +108,20 @@ private:
     
     /// File reader
     std::unique_ptr<juce::FilenameComponent> fileComp;
+
     /// Text field
     std::unique_ptr<juce::TextEditor> textContent;
+
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
+
     /// Play/Pause button
     ToggleButton playPause;
     Label playPauseLabel;
+
+    /// Rewind and Fast Forward
+    TextButton Rewind;
+    TextButton FastForward;
+    Label RewindLabel;
+    Label FastForwardLabel;
 };
