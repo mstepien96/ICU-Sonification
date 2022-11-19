@@ -112,6 +112,7 @@ private:
     std::unique_ptr<juce::TextEditor> textContent;
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
-    
-    TextButton playPause;
+    /// Play/Pause button
+    ToggleButton playPause;
+    Label playPauseLabel;
 };

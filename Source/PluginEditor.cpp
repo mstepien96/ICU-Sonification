@@ -40,10 +40,15 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     // Button
     addAndMakeVisible(playPause);
-    playPause.setButtonText("Start/Stop");
     playPause.onClick = [this] {
-        audioProcessor.isPlaying = !audioProcessor.isPlaying;
+        //audioProcessor.isPlaying = !audioProcessor.isPlaying;
+        audioProcessor.isPlaying = playPause.getToggleState();
+        audioProcessor.setGate(audioProcessor.isPlaying);
     };
+
+    addAndMakeVisible(playPauseLabel);
+    playPauseLabel.setText("Play/Pause", juce::dontSendNotification);
+    playPauseLabel.attachToComponent(&playPause, true);
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -68,7 +73,7 @@ void ICUSonificationAudioProcessorEditor::resized()
     
     fileComp->setBounds(10, 10, getWidth() - 20, 20);
     textContent->setBounds(10, 40, getWidth() - 20, 100);
-    playPause.setBounds(10, 150, getWidth() - 20, 20);
+    playPause.setBounds(100, 150, getWidth() - 20, 20);
 }
 
 

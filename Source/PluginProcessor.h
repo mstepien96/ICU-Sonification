@@ -63,6 +63,8 @@ public:
 
     int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
 
+    void ICUSonificationAudioProcessor::setGate(bool gate);
+
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
     int ECGcounter = 0;  // counter for accessing datapoints from dataArray 
