@@ -39,7 +39,6 @@ public:
         
         // Clearing after loading
         textContent->clear();
-        
         // Counter used in ensuring we don't load the 12 million rows
         juce::int64 counter = 0;
         // Counter for array indexing
@@ -61,33 +60,28 @@ public:
                     juce::String token = tokens[i].toStdString();
                     
                     if (token != "") {
-                        //textContent->insertTextAtCaret(token + " ");
                         // String to Float
                         float floatValue = token.getFloatValue();
-                        // Inserting value in respective entry & incrementing index
-                        audioProcessor.dataArray[counter][valueIndex] = floatValue;
-                        valueIndex++;
                         
-                        // print to console
-                        //DBG(token);
+                        // If value index is 1 we will insert the mV value in our dynamic vector array
+                        if (valueIndex == 1) {
+                            audioProcessor.dataVector.push_back(floatValue);
+                        }
+                        valueIndex++;
                     }
                 }
-                
-                // Adding a new line
-                //textContent->insertTextAtCaret(juce::newLine);
-                
-                // Resetting our array indexer
                 valueIndex = 0;
             }
             
             // Breaker
             counter++;
-            if (counter > 2502) {  // was 252
+            if (counter > 10000) {  // was 252 & 2502
                 audioProcessor.dataRead = true;
                 textContent->insertTextAtCaret("Reading finished");
                 break;
             }
         }
+        audioProcessor.dataRead = true;
     }
     
     // Changing path for file and update the filename

@@ -63,7 +63,7 @@ public:
 
     int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
 
-    void ICUSonificationAudioProcessor::setGate(bool gate);
+    void setGate(bool gate);
 
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
@@ -72,7 +72,7 @@ public:
     bool isPlaying = false;  // turns audio on/off
     bool dataRead = false;  // has data been read yet?
     
-    float dataArray[8000][2];  // float array for reading in ECG data
+    std::vector<float> dataVector; // Dynamic float array for reading in ECG data
 
 private:
     MapUI* fUI;

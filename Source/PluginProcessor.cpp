@@ -59,7 +59,7 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
 
     if (isPlaying) {
         if (dataRead && timeMilliseconds % 4 == 0) {
-            int freqToSonify = mapDataToFreq(dataArray[ECGcounter][1], -0.1, 0.5, 50, 2000);
+            int freqToSonify = mapDataToFreq(dataVector[ECGcounter], -0.1, 0.5, 50, 2000);
 
             //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
             //    // int freqToSonify2 = std::max(freqToSonify, 50);

@@ -60,7 +60,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
 
     addAndMakeVisible(FastForward);
     FastForward.onClick = [this] {
-        audioProcessor.ECGcounter = std::min(int(std::size(audioProcessor.dataArray)), audioProcessor.ECGcounter + 250);
+        audioProcessor.ECGcounter = std::min(int(std::size_t(audioProcessor.dataVector.data())), audioProcessor.ECGcounter + 250);
     };
     addAndMakeVisible(FastForwardLabel);
     FastForwardLabel.setText("Fast Forward", juce::dontSendNotification);
