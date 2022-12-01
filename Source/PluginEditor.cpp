@@ -79,13 +79,15 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
 
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
-    g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
+    // g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
     if (audioProcessor.dataRead) {
         textContent->clear();
         currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
         textContent->insertTextAtCaret("Current Time: " + currentTime + " s" + juce::newLine);
         recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
-        textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s");
+        textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s" + juce::newLine);
+        ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
+        textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV");
     }
 }
 

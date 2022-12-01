@@ -120,4 +120,5 @@ private:
     /// Timesteps
     String currentTime;
     String recordingLength;
+    String ECGamplitude;
 };
