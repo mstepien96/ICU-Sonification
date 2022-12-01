@@ -58,13 +58,18 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
     timeMilliseconds++;
 
     if (isPlaying) {
-        if (dataRead && timeMilliseconds % 4 == 0) {
+        if (dataRead && timeMilliseconds % modForSamplingRate == 0) {
             int freqToSonify = mapDataToFreq(dataVector[ECGcounter], -0.1, 0.5, 50, 2000);
 
             //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
             //    // int freqToSonify2 = std::max(freqToSonify, 50);
             fUI->setParamValue("freq", freqToSonify);
             ECGcounter++;
+        }
+
+        if (ECGcounter >= (int(dataVector.size()) - 1)) {
+            isPlaying = false;
+            setGate(isPlaying);
         }
     }
 };

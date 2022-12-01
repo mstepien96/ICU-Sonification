@@ -67,7 +67,9 @@ public:
 
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
-    int ECGcounter = 0;  // counter for accessing datapoints from dataArray 
+    int ECGcounter = 0;  // counter for accessing datapoints from dataArray
+    float samplingRate = 0.004;
+    int modForSamplingRate = 4;
     
     bool isPlaying = false;  // turns audio on/off
     bool dataRead = false;  // has data been read yet?

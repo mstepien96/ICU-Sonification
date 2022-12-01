@@ -52,7 +52,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     /// Rewind and Fast Forward
     addAndMakeVisible(Rewind);
     Rewind.onClick = [this] {
-        audioProcessor.ECGcounter = std::max(0, audioProcessor.ECGcounter - 250);
+        audioProcessor.ECGcounter = std::max(0, int(audioProcessor.ECGcounter - 1 / audioProcessor.samplingRate));
     };
     addAndMakeVisible(RewindLabel);
     RewindLabel.setText("Rewind", juce::dontSendNotification);
@@ -60,7 +60,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
 
     addAndMakeVisible(FastForward);
     FastForward.onClick = [this] {
-        audioProcessor.ECGcounter = std::min(int(std::size_t(audioProcessor.dataVector.data())), audioProcessor.ECGcounter + 250);
+        audioProcessor.ECGcounter = std::min(int(audioProcessor.dataVector.size() - 1), int(audioProcessor.ECGcounter + 1 / audioProcessor.samplingRate));
     };
     addAndMakeVisible(FastForwardLabel);
     FastForwardLabel.setText("Fast Forward", juce::dontSendNotification);
@@ -82,9 +82,10 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
     if (audioProcessor.dataRead) {
         textContent->clear();
-        currentTime = juce::String(audioProcessor.ECGcounter * 0.004);
+        currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
         textContent->insertTextAtCaret("Current Time: " + currentTime + " s" + juce::newLine);
-        textContent->insertTextAtCaret("Recording Length: XXXXXX s");
+        recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
+        textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s");
     }
 }
 

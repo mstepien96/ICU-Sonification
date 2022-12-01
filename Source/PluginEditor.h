@@ -119,4 +119,5 @@ private:
 
     /// Timesteps
     String currentTime;
+    String recordingLength;
 };
