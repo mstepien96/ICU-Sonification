@@ -68,13 +68,17 @@ public:
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
     int ECGcounter = 0;  // counter for accessing datapoints from dataArray
-    float samplingRate = 0.004;
-    int modForSamplingRate = 4;
+    float samplingRate = 0.001; // was 0.004 from 250 Hz
+    int modForSamplingRate = 1;
     
-    bool isPlaying = false;  // turns audio on/off
-    bool dataRead = false;  // has data been read yet?
+    bool isPlaying = false;    // turns audio on/off
+    bool streamPicker = false; // true chooses first data, false the second
+    bool dataRead = false;     // has data been read yet?
+    bool dataReadTwo = false;  // has the second data sheet been read?
     
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
+    
+    std::vector<float> dataVector2; // Dynamic float array for reading in ECG data
 
 private:
     MapUI* fUI;

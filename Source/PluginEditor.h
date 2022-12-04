@@ -81,13 +81,91 @@ public:
                 break;
             }
         }
+        
         audioProcessor.dataRead = true;
     }
+    
+    void readFileST(const juce::File& fileToRead) {
+        if (!fileToRead.existsAsFile()) {
+            return;
+        }
+        
+        auto fileText = fileToRead.loadFileAsString();
+        
+        juce::FileInputStream inputStream(fileToRead);
+        
+        if (!inputStream.openedOk()) {
+            return;
+        }
+        
+        textContent->clear();
+        
+        juce::int64 counter = 0;
+        
+        while(!inputStream.isExhausted()) {
+            auto line = inputStream.readNextLine();
+            juce::String trimmed = line.trim();
+            
+            float floatValue = trimmed.getFloatValue();
+            
+            audioProcessor.dataVector.push_back(floatValue);
+        
+            counter++;
+            
+            if (counter > 10000) {
+                audioProcessor.dataRead = true;
+                textContent->insertTextAtCaret("Reading finished");
+                break;
+            }
+        }
+        
+        audioProcessor.dataRead = true;
+    }
+    
+    void readFileST2(const juce::File& fileToRead) {
+        if (!fileToRead.existsAsFile()) {
+            return;
+        }
+        
+        auto fileText = fileToRead.loadFileAsString();
+        
+        juce::FileInputStream inputStream(fileToRead);
+        
+        if (!inputStream.openedOk()) {
+            return;
+        }
+        
+        textContent->clear();
+        
+        juce::int64 counter = 0;
+        
+        while(!inputStream.isExhausted()) {
+            auto line = inputStream.readNextLine();
+            juce::String trimmed = line.trim();
+            
+            float floatValue = trimmed.getFloatValue();
+            
+            audioProcessor.dataVector2.push_back(floatValue);
+            
+            counter++;
+            
+            if (counter > 10000) {
+                break;
+            }
+        }
+        
+        audioProcessor.dataReadTwo = true;
+    }
+    
     
     // Changing path for file and update the filename
     void filenameComponentChanged(juce::FilenameComponent* fileComponentThatHasChanged) override {
         if (fileComponentThatHasChanged == fileComp.get()) {
-            readFile (fileComp->getCurrentFileText());
+            if (audioProcessor.dataRead == false) {
+                readFileST (fileComp->getCurrentFileText());
+            } else if (audioProcessor.dataRead == true && audioProcessor.dataReadTwo == false) {
+                readFileST2(fileComp->getCurrentFileText());
+            }
         }
     }
 
@@ -121,4 +199,6 @@ private:
     String currentTime;
     String recordingLength;
     String ECGamplitude;
+
+    TextButton stateChange;
 };

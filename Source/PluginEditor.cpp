@@ -65,6 +65,19 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     addAndMakeVisible(FastForwardLabel);
     FastForwardLabel.setText("Fast Forward", juce::dontSendNotification);
     FastForwardLabel.attachToComponent(&FastForward, true);
+    
+    addAndMakeVisible(stateChange);
+    stateChange.setButtonText("Normal data");
+    stateChange.onClick = [this] {
+        audioProcessor.streamPicker = !audioProcessor.streamPicker;
+        if (audioProcessor.streamPicker) {
+            stateChange.setButtonText("ST-elevation");
+        } else {
+            stateChange.setButtonText("Normal data");
+        }
+    };
+    
+    
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -101,4 +114,5 @@ void ICUSonificationAudioProcessorEditor::resized()
     playPause.setBounds(100, 150, getWidth() - 20, 20);
     Rewind.setBounds(100, 200, 20, 20);
     FastForward.setBounds(100, 250, 20, 20);
+    stateChange.setBounds(100, 300, 60, 30);
 }

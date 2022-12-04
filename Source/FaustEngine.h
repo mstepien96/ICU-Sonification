@@ -595,18 +595,18 @@ public:
 
 #ifndef FAUSTFLOAT
 #define FAUSTFLOAT float
-#endif 
+#endif
 
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <math.h>
 
-#ifndef FAUSTCLASS 
+#ifndef FAUSTCLASS
 #define FAUSTCLASS mydsp
 #endif
 
-#ifdef __APPLE__ 
+#ifdef __APPLE__
 #define exp10f __exp10f
 #define exp10 __exp10
 #endif
@@ -619,27 +619,28 @@ public:
 
 
 class mydsp : public dsp {
-
-private:
-
-    FAUSTFLOAT fHslider0;
+    
+ private:
+    
     int fSampleRate;
     float fConst1;
-    float fRec0[2];
     float fConst2;
-    float fConst3;
-    FAUSTFLOAT fButton0;
+    FAUSTFLOAT fHslider0;
     float fRec1[2];
-
-public:
-
+    float fConst3;
+    float fRec0[2];
+    FAUSTFLOAT fButton0;
+    float fRec2[2];
+    
+ public:
+    
     void metadata(Meta* m) {
         m->declare("compile_options", "-single -scal -I libraries/ -I project/ -lang wasm");
         m->declare("filename", "untitled3.dsp");
         m->declare("library_path0", "/libraries/stdfaust.lib");
-        m->declare("library_path1", "/libraries/maths.lib");
-        m->declare("library_path2", "/libraries/platform.lib");
-        m->declare("library_path3", "/libraries/signals.lib");
+        m->declare("library_path1", "/libraries/signals.lib");
+        m->declare("library_path2", "/libraries/maths.lib");
+        m->declare("library_path3", "/libraries/platform.lib");
         m->declare("maths_lib_author", "GRAME");
         m->declare("maths_lib_copyright", "GRAME");
         m->declare("maths_lib_license", "LGPL with exception");
@@ -659,32 +660,35 @@ public:
     virtual int getNumOutputs() {
         return 2;
     }
-
+    
     static void classInit(int sample_rate) {
     }
-
+    
     virtual void instanceConstants(int sample_rate) {
         fSampleRate = sample_rate;
         float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
-        fConst1 = 1.0f / fConst0;
-        fConst2 = 44.1f / fConst0;
-        fConst3 = 1.0f - fConst2;
+        fConst1 = 44.1f / fConst0;
+        fConst2 = 1.0f - fConst1;
+        fConst3 = 1.0f / fConst0;
     }
-
+    
     virtual void instanceResetUserInterface() {
         fHslider0 = FAUSTFLOAT(1e+02f);
         fButton0 = FAUSTFLOAT(0.0f);
     }
-
+    
     virtual void instanceClear() {
         for (int l0 = 0; l0 < 2; l0 = l0 + 1) {
-            fRec0[l0] = 0.0f;
+            fRec1[l0] = 0.0f;
         }
         for (int l1 = 0; l1 < 2; l1 = l1 + 1) {
-            fRec1[l1] = 0.0f;
+            fRec0[l1] = 0.0f;
+        }
+        for (int l2 = 0; l2 < 2; l2 = l2 + 1) {
+            fRec2[l2] = 0.0f;
         }
     }
-
+    
     virtual void init(int sample_rate) {
         classInit(sample_rate);
         instanceInit(sample_rate);
@@ -694,35 +698,38 @@ public:
         instanceResetUserInterface();
         instanceClear();
     }
-
+    
     virtual mydsp* clone() {
         return new mydsp();
     }
-
+    
     virtual int getSampleRate() {
         return fSampleRate;
     }
-
+    
     virtual void buildUserInterface(UI* ui_interface) {
         ui_interface->openVerticalBox("untitled3");
         ui_interface->addHorizontalSlider("freq", &fHslider0, FAUSTFLOAT(1e+02f), FAUSTFLOAT(5e+01f), FAUSTFLOAT(2e+03f), FAUSTFLOAT(0.01f));
         ui_interface->addButton("gate", &fButton0);
         ui_interface->closeBox();
     }
-
+    
     virtual void compute(int count, FAUSTFLOAT** RESTRICT inputs, FAUSTFLOAT** RESTRICT outputs) {
         FAUSTFLOAT* output0 = outputs[0];
         FAUSTFLOAT* output1 = outputs[1];
         float fSlow0 = fConst1 * float(fHslider0);
-        float fSlow1 = fConst2 * float(fButton0);
+        float fSlow1 = fConst1 * float(fButton0);
         for (int i0 = 0; i0 < count; i0 = i0 + 1) {
-            fRec0[0] = fSlow0 + (fRec0[1] - std::floor(fSlow0 + fRec0[1]));
-            fRec1[0] = fSlow1 + fConst3 * fRec1[1];
-            float fTemp0 = fRec1[0] * std::sin(6.2831855f * fRec0[0]);
-            output0[i0] = FAUSTFLOAT(fTemp0);
-            output1[i0] = FAUSTFLOAT(fTemp0);
-            fRec0[1] = fRec0[0];
+            fRec1[0] = fSlow0 + fConst2 * fRec1[1];
+            float fTemp0 = fRec0[1] + fConst3 * fRec1[0];
+            fRec0[0] = fTemp0 - std::floor(fTemp0);
+            fRec2[0] = fSlow1 + fConst2 * fRec2[1];
+            float fTemp1 = fRec2[0] * std::sin(6.2831855f * fRec0[0]);
+            output0[i0] = FAUSTFLOAT(fTemp1);
+            output1[i0] = FAUSTFLOAT(fTemp1);
             fRec1[1] = fRec1[0];
+            fRec0[1] = fRec0[0];
+            fRec2[1] = fRec2[0];
         }
     }
 
