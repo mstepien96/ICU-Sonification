@@ -115,6 +115,8 @@ public:
             if (counter > 10000) {
                 audioProcessor.dataRead = true;
                 textContent->insertTextAtCaret("Reading finished");
+                audioProcessor.dataMax1 = *std::max_element(audioProcessor.dataVector.begin(), audioProcessor.dataVector.end());
+                audioProcessor.dataMin1 = *std::min_element(audioProcessor.dataVector.begin(), audioProcessor.dataVector.end());
                 break;
             }
         }
@@ -150,6 +152,8 @@ public:
             counter++;
             
             if (counter > 10000) {
+                audioProcessor.dataMax2 = *std::max_element(audioProcessor.dataVector2.begin(), audioProcessor.dataVector2.end());
+                audioProcessor.dataMin2 = *std::min_element(audioProcessor.dataVector2.begin(), audioProcessor.dataVector2.end());
                 break;
             }
         }

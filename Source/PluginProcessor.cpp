@@ -37,7 +37,7 @@ const juce::String ICUSonificationAudioProcessor::getName() const
     return JucePlugin_Name;
 }
 
-int ICUSonificationAudioProcessor::mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax) {
+int ICUSonificationAudioProcessor::mapData(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax) {
     float mappingFactor = (freqMax - freqMin) / (dataMax - dataMin);
     int ECGdataMapped = int((ECGdata - dataMin) * mappingFactor + dataMin);
 
@@ -59,21 +59,34 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
 
     if (isPlaying) {
         if (dataRead && timeMilliseconds % modForSamplingRate == 0) {
-
-            //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
-            //    // int freqToSonify2 = std::max(freqToSonify, 50);
             
             if (streamPicker) {
-                int freqToSonify = mapDataToFreq(dataVector2[ECGcounter], -0.1, 0.5, 50, 2000);
-                if (dataVector2[ECGcounter] > 0.5) {
-                    fUI->setParamValue("freq", freqToSonify);
+                int freqToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 5000, 100000);
+                int gainToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 100);
+                int vowelToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 400);
+                int vibratoFreqToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 1000);
+                int vibratoGainToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 100);
+                if (dataVector2[ECGcounter] > threshold) {
+                    fUI->setParamValue("freq", (float)freqToSonify / 100);
+                    fUI->setParamValue("gain", (float)gainToSonify / 100);
+                    fUI->setParamValue("vowel", (float)vowelToSonify / 100);
+                    fUI->setParamValue("vibratoFreq", (float)vibratoFreqToSonify / 100);
+                    fUI->setParamValue("vibratoGain", (float)vibratoGainToSonify / 100);
                 } else {
                     fUI->setParamValue("freq", 0.0);
                 }
             } else {
-                int freqToSonify = mapDataToFreq(dataVector[ECGcounter], -0.1, 0.5, 50, 2000);
-                if (dataVector[ECGcounter] > 0.5) {
-                    fUI->setParamValue("freq", freqToSonify);
+                int freqToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 5000, 100000);
+                int gainToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 0, 100);
+                int vowelToSonify = mapData(dataVector[ECGcounter], dataMin2 + threshold, dataMax2, 0, 400);
+                int vibratoFreqToSonify = mapData(dataVector[ECGcounter], dataMin2 + threshold, dataMax2, 0, 1000);
+                int vibratoGainToSonify = mapData(dataVector[ECGcounter], dataMin2 + threshold, dataMax2, 0, 100);
+                if (dataVector[ECGcounter] > threshold) {
+                    fUI->setParamValue("freq", (float)freqToSonify / 100);
+                    fUI->setParamValue("gain", (float)gainToSonify / 100);
+                    fUI->setParamValue("vowel", (float)vowelToSonify / 100);
+                    fUI->setParamValue("vibratoFreq", (float)vibratoFreqToSonify / 100);
+                    fUI->setParamValue("vibratoGain", (float)vibratoGainToSonify / 100);
                 } else {
                     fUI->setParamValue("freq", 0.0);
                 }
