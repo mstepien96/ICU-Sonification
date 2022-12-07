@@ -178,11 +178,13 @@ public:
     }
     
     void readDefaultData() {
-        juce::File STElevation("/Users/duyx/Private/AAU/Semester1/SMC01/MatLab/ST-elevatedData.txt");
-        juce::File normalData ("/Users/duyx/Private/AAU/Semester1/SMC01/MatLab/normalData.txt");
-    
-        readFileST(STElevation);
-        readFileST2(normalData);
+        auto bundle = juce::File::getSpecialLocation (juce::File::currentExecutableFile).getParentDirectory().getParentDirectory().getParentDirectory()
+            .getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory();
+        juce::File normalData = bundle.getChildFile("Source/normalData.txt");
+        juce::File STElevation = bundle.getChildFile("Source/ST-elevatedData.txt");
+
+        readFileST(normalData);
+        readFileST2(STElevation);
     }
 
 private:
