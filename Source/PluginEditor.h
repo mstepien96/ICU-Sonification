@@ -14,7 +14,7 @@ using namespace juce;
 
 //==============================================================================
 // public juce::HighResolutionTimer
-class ICUSonificationAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::FilenameComponentListener
+class ICUSonificationAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::FilenameComponentListener, public juce::Slider::Listener
 {
 public:
     ICUSonificationAudioProcessorEditor (ICUSonificationAudioProcessor&);
@@ -112,7 +112,7 @@ public:
         
             counter++;
             
-            if (counter > 10000) {
+            if (counter > 100000) {
                 audioProcessor.dataRead = true;
                 textContent->insertTextAtCaret("Reading finished");
                 break;
@@ -149,7 +149,7 @@ public:
             
             counter++;
             
-            if (counter > 10000) {
+            if (counter > 100000) {
                 break;
             }
         }
@@ -167,6 +167,22 @@ public:
                 readFileST2(fileComp->getCurrentFileText());
             }
         }
+    }
+    
+    void sliderValueChanged(Slider* slider) override {
+        if (slider == &freqCutOff) {
+            audioProcessor.calculateBIQCoeff(freqCutOff.getValue() , 0.7);
+        } else if (slider == &threshold) {
+            audioProcessor.thresholdValue = threshold.getValue();
+        }
+    }
+    
+    void readDefaultData() {
+        juce::File STElevation("/Users/duyx/Private/AAU/Semester1/SMC01/MatLab/ST-elevatedData.txt");
+        juce::File normalData ("/Users/duyx/Private/AAU/Semester1/SMC01/MatLab/normalData.txt");
+    
+        readFileST(STElevation);
+        readFileST2(normalData);
     }
 
 private:
@@ -201,4 +217,10 @@ private:
     String ECGamplitude;
 
     TextButton stateChange;
+    
+    /// Sliders
+    Slider freqCutOff;
+    Slider threshold;
+    Label freqCutOffLabel;
+    Label thresholdLabel;
 };

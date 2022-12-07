@@ -60,6 +60,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     void hiResTimerCallback();  // High Resolution Timer for sending data from JUCE to Faust engine
+    
+    float filterData(float input);
+    
+    void calculateBIQCoeff(float fCutoffFreq, float fQ);
 
     int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
 
@@ -79,6 +83,19 @@ public:
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
     
     std::vector<float> dataVector2; // Dynamic float array for reading in ECG data
+    
+    float input_z1 = 0, input_z2 = 0;
+    float output_z1 = 0, output_z2 = 0;
+    
+    float thresholdValue = 0.5; 
+    
+    double fs = 1000;
+    
+    double a0 = 1;
+    double a1 = 0;
+    double a2 = 0;
+    double b1 = 0;
+    double b2 = 0;
 
 private:
     MapUI* fUI;

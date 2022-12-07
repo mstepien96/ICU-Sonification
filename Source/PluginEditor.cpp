@@ -77,7 +77,27 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
         }
     };
     
+    addAndMakeVisible(freqCutOff);
+    freqCutOff.setRange(1, 10);
+    freqCutOff.setValue(1);
+    freqCutOff.setTextValueSuffix(" Hz");
+    freqCutOff.addListener(this);
     
+    addAndMakeVisible(freqCutOffLabel);
+    freqCutOffLabel.setText("Filter cut off", juce::dontSendNotification);
+    freqCutOffLabel.attachToComponent(&freqCutOff, true);
+    
+    addAndMakeVisible(threshold);
+    threshold.setRange(0.1, 1);
+    threshold.setValue(0.5);
+    threshold.setTextValueSuffix(" mV");
+    threshold.addListener(this);
+    
+    addAndMakeVisible(thresholdLabel);
+    thresholdLabel.setText("Threshold", juce::dontSendNotification);
+    thresholdLabel.attachToComponent(&threshold, true);
+    
+    readDefaultData();
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -115,4 +135,6 @@ void ICUSonificationAudioProcessorEditor::resized()
     Rewind.setBounds(100, 200, 20, 20);
     FastForward.setBounds(100, 250, 20, 20);
     stateChange.setBounds(100, 300, 60, 30);
+    freqCutOff.setBounds(100, 350, 200, 30);
+    threshold.setBounds(100, 400, 200, 30);
 }

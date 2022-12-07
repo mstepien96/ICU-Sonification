@@ -24,6 +24,7 @@ ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
                        )
 #endif
 {
+    calculateBIQCoeff(1, 0.7);
     startTimer(1);
 }
 
@@ -59,20 +60,21 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
 
     if (isPlaying) {
         if (dataRead && timeMilliseconds % modForSamplingRate == 0) {
-
             //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
             //    // int freqToSonify2 = std::max(freqToSonify, 50);
             
             if (streamPicker) {
-                int freqToSonify = mapDataToFreq(dataVector2[ECGcounter], -0.1, 0.5, 50, 2000);
-                if (dataVector2[ECGcounter] > 0.5) {
+                float output = filterData(dataVector2[ECGcounter]);
+                int freqToSonify = mapDataToFreq(output, -0.1, 0.5, 50, 2000);
+                if (dataVector2[ECGcounter] > thresholdValue) {
                     fUI->setParamValue("freq", freqToSonify);
                 } else {
                     fUI->setParamValue("freq", 0.0);
                 }
             } else {
-                int freqToSonify = mapDataToFreq(dataVector[ECGcounter], -0.1, 0.5, 50, 2000);
-                if (dataVector[ECGcounter] > 0.5) {
+                float output = filterData(dataVector[ECGcounter]);
+                int freqToSonify = mapDataToFreq(output, -0.1, 0.5, 50, 2000);
+                if (dataVector[ECGcounter] > thresholdValue) {
                     fUI->setParamValue("freq", freqToSonify);
                 } else {
                     fUI->setParamValue("freq", 0.0);
@@ -81,6 +83,10 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
             
             ECGcounter++;
         }
+        
+        if (ECGcounter > (int(dataVector.size()) - 2 )) {
+            ECGcounter = 0;
+        }
 
         if (ECGcounter >= (int(dataVector.size()) - 1)) {
             isPlaying = false;
@@ -88,6 +94,44 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
         }
     }
 };
+
+float ICUSonificationAudioProcessor::filterData(float input) {
+    
+    float y_n = a0 * input + a1 * input_z1 + a2 * input_z2 - b1 * output_z1 - b2 * output_z2;
+    
+    output_z2 = output_z1;
+    output_z1 = y_n;
+    
+    input_z2 = input_z1;
+    input_z1 = input;
+    
+    return y_n;
+}
+
+void ICUSonificationAudioProcessor::calculateBIQCoeff(float fCutoffFreq, float fQ) {
+    // use same terms as in book:
+    float theta_c = 2.0 * M_PI*fCutoffFreq / 1000;
+    float d = 1.0 / fQ;
+    
+    // intermediate values
+    float fBetaNumerator = 1.0 - ((d / 2.0) * (sin(theta_c)));
+    float fBetaDenominator = 1.0 + ((d / 2.0) * (sin(theta_c)));
+
+    // beta
+    float fBeta = 0.5 * (fBetaNumerator / fBetaDenominator);
+
+    // gamma
+    float fGamma = (0.5 + fBeta) * (cos(theta_c));
+
+    // alpha
+    //float fAlpha = (0.5 + fBeta - fGamma) / 2.0;
+    
+    a0 = (0.5 + fBeta - fGamma) / 2.0;
+    a1 = 0.5 + fBeta - fGamma;
+    a2 = (0.5 + fBeta - fGamma) / 2.0;
+    b1 = -2 * fGamma;
+    b2 = 2 * fBeta;
+}
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const
 {
