@@ -39,6 +39,28 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     textContent->setCaretVisible(false);
     setSize (800, 600);
     
+    /// Windows
+    addAndMakeVisible(currentTimeWindow);
+    currentTimeWindow.setEnabled(false);
+    currentTimeWindow.setButtonText("0 s");
+    addAndMakeVisible(currentTimeLabel);
+    currentTimeLabel.setText("Time:", juce::dontSendNotification);
+    currentTimeLabel.attachToComponent(&currentTimeWindow, false);
+    
+    addAndMakeVisible(ECGAmpWindow);
+    ECGAmpWindow.setEnabled(false);
+    ECGAmpWindow.setButtonText("0 mV");
+    addAndMakeVisible(ECGAmpLabel);
+    ECGAmpLabel.setText("Amp.:", juce::dontSendNotification);
+    ECGAmpLabel.attachToComponent(&ECGAmpWindow, false);
+    
+    addAndMakeVisible(lengthWindow);
+    lengthWindow.setEnabled(false);
+    lengthWindow.setButtonText("0 s");
+    addAndMakeVisible(lengthLabel);
+    lengthLabel.setText("Dur.:", juce::dontSendNotification);
+    lengthLabel.attachToComponent(&lengthWindow, false);
+    
     /// Player Section
     addAndMakeVisible(playPauseBtn);
     playPauseBtn.setButtonText("Play");
@@ -61,7 +83,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     addAndMakeVisible(rewindBtn);
     rewindBtn.setButtonText("- 1 sec.");
-    rewindBtn.onClick = [this] {
+    rewindBtn.onClick = [this] {
         audioProcessor.ECGcounter = std::max(0, int(audioProcessor.ECGcounter - 1 / audioProcessor.samplingRate));
     };
     
@@ -149,6 +171,10 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
         textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s" + juce::newLine);
         ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
         textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV");
+        
+        currentTimeWindow.setButtonText(currentTime + " s");
+        ECGAmpWindow.setButtonText(ECGamplitude + " mV");
+        lengthWindow.setButtonText(recordingLength + " s");
     }
 }
 
@@ -158,16 +184,21 @@ void ICUSonificationAudioProcessorEditor::resized()
     // subcomponents in your editor..
     
     fileComp->setBounds(10, 10, getWidth() - 20, 20);
-    textContent->setBounds(10, 40, getWidth() - 20, 100);
+    textContent->setBounds(10, 40, getWidth() - 20, 70);
 
     loPass.setBounds(300, 350, 200, 30);
     hiPass.setBounds(300, 400, 200, 30);
     threshold.setBounds(300, 450, 200, 30);
     
     stateChangeBtn.setBounds(320, 250, 120, 30);
-    printDataBtn.setBounds(730, 150, 60, 30);
     
     playPauseBtn.setBounds(350, 300, 60, 30);
     fastForwardBtn.setBounds(430, 300, 60, 30);
     rewindBtn.setBounds(270, 300, 60, 30);
+    
+    currentTimeWindow.setBounds(350, 140, 60, 30);
+    ECGAmpWindow.setBounds(270, 140, 60, 30);
+    lengthWindow.setBounds(430, 140, 60, 30);
+    
+    printDataBtn.setBounds(730, 550, 60, 30);
 }
