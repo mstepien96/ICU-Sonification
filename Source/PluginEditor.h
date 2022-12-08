@@ -293,15 +293,10 @@ private:
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
 
-    /// Play/Pause button
-    ToggleButton playPause;
-    Label playPauseLabel;
-
-    /// Rewind and Fast Forward
-    TextButton Rewind;
-    TextButton FastForward;
-    Label RewindLabel;
-    Label FastForwardLabel;
+    /// Player Buttons
+    TextButton playPauseBtn;
+    TextButton fastForwardBtn;
+    TextButton rewindBtn;
 
     /// Timesteps
     String currentTime;
@@ -311,6 +306,10 @@ private:
     /// Buttons
     TextButton stateChangeBtn;
     TextButton printDataBtn;
+    
+    /// Button Labels
+    Label stateLabel;
+    Label printLabel;
     
     /// Sliders
     Slider loPass;

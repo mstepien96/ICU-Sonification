@@ -39,33 +39,31 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     textContent->setCaretVisible(false);
     setSize (800, 600);
     
-    // Play/Pause Button
-    addAndMakeVisible(playPause);
-    playPause.onClick = [this] {
-        audioProcessor.isPlaying = playPause.getToggleState();
+    /// Player Section
+    addAndMakeVisible(playPauseBtn);
+    playPauseBtn.setButtonText("Play");
+    playPauseBtn.onClick = [this] {
+        audioProcessor.isPlaying = !audioProcessor.isPlaying;
         audioProcessor.setGate(audioProcessor.isPlaying);
+        if (!audioProcessor.isPlaying) {
+            playPauseBtn.setButtonText("Play");
+        } else {
+            playPauseBtn.setButtonText("Pause");
+        }
+        
     };
-    addAndMakeVisible(playPauseLabel);
-    playPauseLabel.setText("Play/Pause", juce::dontSendNotification);
-    playPauseLabel.attachToComponent(&playPause, true);
-
-    /// Rewind and Fast Forward
-    addAndMakeVisible(Rewind);
-    Rewind.onClick = [this] {
-        audioProcessor.ECGcounter = std::max(0, int(audioProcessor.ECGcounter - 1 / audioProcessor.samplingRate));
-    };
-    addAndMakeVisible(RewindLabel);
-    RewindLabel.setText("Rewind", juce::dontSendNotification);
-    RewindLabel.attachToComponent(&Rewind, true);
-
-    addAndMakeVisible(FastForward);
-    FastForward.onClick = [this] {
+    
+    addAndMakeVisible(fastForwardBtn);
+    fastForwardBtn.setButtonText("+ 1 sec.");
+    fastForwardBtn.onClick = [this] {
         audioProcessor.ECGcounter = std::min(int(audioProcessor.dataVector.size() - 1), int(audioProcessor.ECGcounter + 1 / audioProcessor.samplingRate));
     };
-    addAndMakeVisible(FastForwardLabel);
-    FastForwardLabel.setText("Fast Forward", juce::dontSendNotification);
-    FastForwardLabel.attachToComponent(&FastForward, true);
     
+    addAndMakeVisible(rewindBtn);
+    rewindBtn.setButtonText("- 1 sec.");
+    rewindBtn.onClick = [this] {
+        audioProcessor.ECGcounter = std::max(0, int(audioProcessor.ECGcounter - 1 / audioProcessor.samplingRate));
+    };
     
     /// Button changing between the state of the healhy and unhealthy dataset
     addAndMakeVisible(stateChangeBtn);
@@ -79,6 +77,9 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
         }
     };
     
+    addAndMakeVisible(stateLabel);
+    stateLabel.setText("Click to change data", juce::dontSendNotification);
+    stateLabel.attachToComponent(&stateChangeBtn, false);
     
     /// Button printing the filtered data sets to the directory of the program
     addAndMakeVisible(printDataBtn);
@@ -86,6 +87,10 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     printDataBtn.onClick = [this] {
         printData();
     };
+    
+    addAndMakeVisible(printLabel);
+    printLabel.setText("Click to print data in directory", juce::dontSendNotification);
+    printLabel.attachToComponent(&printDataBtn, true);
     
     /// LO Pass Slider
     addAndMakeVisible(loPass);
@@ -154,12 +159,15 @@ void ICUSonificationAudioProcessorEditor::resized()
     
     fileComp->setBounds(10, 10, getWidth() - 20, 20);
     textContent->setBounds(10, 40, getWidth() - 20, 100);
-    playPause.setBounds(100, 150, getWidth() - 20, 20);
-    Rewind.setBounds(100, 200, 20, 20);
-    FastForward.setBounds(100, 250, 20, 20);
-    stateChangeBtn.setBounds(100, 300, 60, 30);
-    loPass.setBounds(100, 350, 200, 30);
-    hiPass.setBounds(100, 400, 200, 30);
-    threshold.setBounds(100, 450, 200, 30);
-    printDataBtn.setBounds(500, 200, 60, 30);
+
+    loPass.setBounds(300, 350, 200, 30);
+    hiPass.setBounds(300, 400, 200, 30);
+    threshold.setBounds(300, 450, 200, 30);
+    
+    stateChangeBtn.setBounds(320, 250, 120, 30);
+    printDataBtn.setBounds(730, 150, 60, 30);
+    
+    playPauseBtn.setBounds(350, 300, 60, 30);
+    fastForwardBtn.setBounds(430, 300, 60, 30);
+    rewindBtn.setBounds(270, 300, 60, 30);
 }
