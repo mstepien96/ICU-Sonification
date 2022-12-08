@@ -203,6 +203,8 @@ private:
     String currentTime;
     String recordingLength;
     String ECGamplitude;
+    String vowell;
+    float vowellf;
 
     TextButton stateChange;
 };

@@ -62,6 +62,11 @@ public:
     void hiResTimerCallback();  // High Resolution Timer for sending data from JUCE to Faust engine
 
     int mapData(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
+    int mapDataLog(float freqMin, float freqMax, int dataToSonify, int numberOfDataPoints);
+    int freqToSonify;
+    int freqToSonifyLog;
+    int gainToSonify;
+    int vowelToSonify;
 
     void setGate(bool gate);
 
@@ -75,7 +80,7 @@ public:
     bool streamPicker = false; // true chooses first data, false the second
     bool dataRead = false;     // has data been read yet?
     bool dataReadTwo = false;  // has the second data sheet been read?
-    float threshold = 0.5;  // threshold for sonification
+    float threshold = 0.2;  // threshold for sonification
     
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
     float dataMin1;

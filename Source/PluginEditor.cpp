@@ -100,7 +100,11 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
         recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
         textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s" + juce::newLine);
         ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
-        textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV");
+        textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV" + juce::newLine);
+        vowellf = (float)audioProcessor.vowelToSonify / 100;
+        vowell = juce::String(vowellf);
+        textContent->insertTextAtCaret("Vowel: " + vowell);
+
     }
 }
 
