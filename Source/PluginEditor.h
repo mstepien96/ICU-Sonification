@@ -292,6 +292,14 @@ private:
 
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
+    
+    /// Visualization
+    TextButton currentTimeWindow;
+    Label currentTimeLabel;
+    TextButton ECGAmpWindow;
+    Label ECGAmpLabel;
+    TextButton lengthWindow;
+    Label lengthLabel;
 
     /// Player Buttons
     TextButton playPauseBtn;
