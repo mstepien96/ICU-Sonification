@@ -10,6 +10,7 @@
 #include "PluginEditor.h"
 #include "FaustEngine.h"
 #include <algorithm>
+#include <cmath>
 
 //==============================================================================
 ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
@@ -24,7 +25,7 @@ ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
                        )
 #endif
 {
-    calculateBIQCoeff(1, 0.7);
+    // calculateBIQCoeff(1, 0.7);
     startTimer(1);
 }
 
@@ -64,16 +65,20 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
             //    // int freqToSonify2 = std::max(freqToSonify, 50);
             
             if (streamPicker) {
-                float output = filterData(dataVector2[ECGcounter]);
-                int freqToSonify = mapDataToFreq(output, -0.1, 0.5, 50, 2000);
+                float LOPassData = LOfilterData(dataVector2[ECGcounter]);
+                float HI_LOPassData = HIfilterData(LOPassData);
+                int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
+                
                 if (dataVector2[ECGcounter] > thresholdValue) {
                     fUI->setParamValue("freq", freqToSonify);
                 } else {
                     fUI->setParamValue("freq", 0.0);
                 }
             } else {
-                float output = filterData(dataVector[ECGcounter]);
-                int freqToSonify = mapDataToFreq(output, -0.1, 0.5, 50, 2000);
+                float LOPassData = LOfilterData(dataVector[ECGcounter]);
+                float HI_LOPassData = HIfilterData(LOPassData);
+                int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
+                
                 if (dataVector[ECGcounter] > thresholdValue) {
                     fUI->setParamValue("freq", freqToSonify);
                 } else {
@@ -95,22 +100,35 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
     }
 };
 
-float ICUSonificationAudioProcessor::filterData(float input) {
+float ICUSonificationAudioProcessor::LOfilterData(float input) {
     
-    float y_n = a0 * input + a1 * input_z1 + a2 * input_z2 - b1 * output_z1 - b2 * output_z2;
+    float y_n = LP_a0 * input + LP_a1 * LOinput_z1 + LP_a2 * LOinput_z2 - LP_b1 * LOoutput_z1 - LP_b2 * LOoutput_z2;
     
-    output_z2 = output_z1;
-    output_z1 = y_n;
+    LOoutput_z2 = LOoutput_z1;
+    LOoutput_z1 = y_n;
     
-    input_z2 = input_z1;
-    input_z1 = input;
+    LOinput_z2 = LOinput_z1;
+    LOinput_z1 = input;
     
     return y_n;
 }
 
-void ICUSonificationAudioProcessor::calculateBIQCoeff(float fCutoffFreq, float fQ) {
+float ICUSonificationAudioProcessor::HIfilterData(float input) {
+    
+    float y_n = HP_a0 * input + HP_a1 * HIinput_z1 + HP_a2 * HIinput_z2 - HP_b1 * HIoutput_z1 - HP_b2 * HIoutput_z2;
+    
+    HIoutput_z2 = HIoutput_z1;
+    HIoutput_z1 = y_n;
+    
+    HIinput_z2 = HIinput_z1;
+    HIinput_z1 = input;
+    
+    return y_n;
+}
+
+void ICUSonificationAudioProcessor::calculateLPFBIQCoeff(float fCutoffFreq, float fQ) {
     // use same terms as in book:
-    float theta_c = 2.0 * M_PI*fCutoffFreq / 1000;
+    float theta_c = 2.0 * M_PI * fCutoffFreq / 1000;
     float d = 1.0 / fQ;
     
     // intermediate values
@@ -124,13 +142,74 @@ void ICUSonificationAudioProcessor::calculateBIQCoeff(float fCutoffFreq, float f
     float fGamma = (0.5 + fBeta) * (cos(theta_c));
 
     // alpha
-    //float fAlpha = (0.5 + fBeta - fGamma) / 2.0;
+    float fAlpha = (0.5 + fBeta - fGamma) / 2.0;
     
-    a0 = (0.5 + fBeta - fGamma) / 2.0;
-    a1 = 0.5 + fBeta - fGamma;
-    a2 = (0.5 + fBeta - fGamma) / 2.0;
-    b1 = -2 * fGamma;
-    b2 = 2 * fBeta;
+    LP_a0 = fAlpha;
+    LP_a1 = 0.5 + fBeta - fGamma;
+    LP_a2 = (0.5 + fBeta - fGamma) / 2.0;
+    LP_b1 = -2 * fGamma;
+    LP_b2 = 2 * fBeta;
+}
+
+void ICUSonificationAudioProcessor::calculateHPFBIQCoeff(float fCutoffFreq, float fQ) {
+    float theta_c = 2.0 * M_PI * fCutoffFreq / 1000;
+    float d = 1.0 / fQ;
+    
+    // intermediate values
+    float fBetaNumerator = 1.0 - ((d / 2.0) * (sin(theta_c)));
+    float fBetaDenominator = 1.0 + ((d / 2.0) * (sin(theta_c)));
+
+    // beta
+    float fBeta = 0.5 * (fBetaNumerator / fBetaDenominator);
+
+    // gamma
+    float fGamma = (0.5 + fBeta) * (cos(theta_c));
+    
+    // alpha
+    float fAlpha = (0.5 + fBeta + fGamma) / 2.0;
+    
+    HP_a0 = fAlpha;
+    HP_a1 = -(0.5 + fBeta + fGamma);
+    HP_a2 = (0.5 + fBeta + fGamma) / 2.0;
+    HP_b1 = -2 * fGamma;
+    HP_b2 = 2 * fBeta;
+}
+
+void ICUSonificationAudioProcessor::calculateLPFButterWorthCoeffs(float fCutoffFreq) {
+    
+    float C = 1 / tan((M_PI * fCutoffFreq) / 1000);
+    
+    //float C = tan((M_PI * fCutoffFreq) / 1000);
+    
+    LP_a0 = 1 / (1 + sqrt(2 * C) + pow(C, 2));
+    LP_a1 = 2 * LP_a0;
+    LP_a2 = LP_a0;
+    LP_b1 = 2 * LP_a0 * (1 - pow(C, 2));
+    LP_b2 = LP_a0 * (1 - sqrt(2 * C) + pow(C, 2));
+}
+
+void ICUSonificationAudioProcessor::calculateHPFButterWorthCoeffs(float fCutoffFreq) {
+    float C = (tan(M_PI * fCutoffFreq / 1000));
+    
+    HP_a0 = 1 / (1 + sqrt(2 * C) + pow(C, 2));
+    HP_a1 = -2 * HP_a0;
+    HP_a2 = HP_a0;
+    HP_b1 = 2 * HP_a0 * (pow(C, 2) - 1);
+    HP_b2 = HP_a0 * (1 - sqrt(2 * C) + pow(C, 2));
+}
+
+void ICUSonificationAudioProcessor::resetCoeffs() {
+    HP_a0 = 1; HP_a1 = 0; HP_a2 = 0;
+    HP_b1 = 0; HP_b2 = 0;
+    
+    LP_a0 = 1; LP_a1 = 0; LP_a2 = 0;
+    LP_b1 = 0; LP_b2 = 0;
+    
+    LOinput_z1 = 0; LOinput_z2 = 0;
+    LOoutput_z1 = 0; LOoutput_z2 = 0;
+    
+    HIinput_z1 = 0; HIinput_z2 = 0;
+    HIoutput_z1 = 0; HIoutput_z2 = 0;
 }
 
 bool ICUSonificationAudioProcessor::acceptsMidi() const

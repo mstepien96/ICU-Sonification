@@ -59,11 +59,16 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    void hiResTimerCallback();  // High Resolution Timer for sending data from JUCE to Faust engine
+    void hiResTimerCallback() override;  // High Resolution Timer for sending data from JUCE to Faust engine
     
-    float filterData(float input);
+    float LOfilterData(float input);
+    float HIfilterData(float input);
     
-    void calculateBIQCoeff(float fCutoffFreq, float fQ);
+    void calculateLPFBIQCoeff(float fCutoffFreq, float fQ);
+    void calculateHPFBIQCoeff(float fCutoffFreq, float fQ);
+    void calculateLPFButterWorthCoeffs(float fCutoffFreq);
+    void calculateHPFButterWorthCoeffs(float fCutoffFreq);
+    void resetCoeffs();
 
     int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
 
@@ -81,22 +86,24 @@ public:
     bool dataReadTwo = false;  // has the second data sheet been read?
     
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
-    
     std::vector<float> dataVector2; // Dynamic float array for reading in ECG data
-    
-    float input_z1 = 0, input_z2 = 0;
-    float output_z1 = 0, output_z2 = 0;
-    
-    float thresholdValue = 0.5; 
+        
+    float thresholdValue = 0.5;
     
     double fs = 1000;
-    
-    double a0 = 1;
-    double a1 = 0;
-    double a2 = 0;
-    double b1 = 0;
-    double b2 = 0;
 
+    float HIinput_z1 = 0, HIinput_z2 = 0; // Variables for HI pass difference equation
+    float HIoutput_z1 = 0, HIoutput_z2 = 0; // Variables for HI pass difference equation
+    
+    double HP_a0 = 1; double HP_a1 = 0; double HP_a2 = 0; // HI Pass A Coeffs variables
+    double HP_b1 = 0; double HP_b2 = 0; // HI Pass B Coeffs variables
+    
+    float LOinput_z1 = 0, LOinput_z2 = 0;  // Variables for LO pass difference equation
+    float LOoutput_z1 = 0, LOoutput_z2 = 0; // Variables for LO pass difference equation
+    
+    double LP_a0 = 1; double LP_a1 = 0; double LP_a2 = 0; // LO Pass B Coeffs variables
+    double LP_b1 = 0; double LP_b2 = 0; // LO Pass B Coeffs variables
+    
 private:
     MapUI* fUI;
     dsp* fDSP;

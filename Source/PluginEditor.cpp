@@ -66,29 +66,53 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     FastForwardLabel.setText("Fast Forward", juce::dontSendNotification);
     FastForwardLabel.attachToComponent(&FastForward, true);
     
-    addAndMakeVisible(stateChange);
-    stateChange.setButtonText("Normal data");
-    stateChange.onClick = [this] {
+    
+    /// Button changing between the state of the healhy and unhealthy dataset
+    addAndMakeVisible(stateChangeBtn);
+    stateChangeBtn.setButtonText("Normal data");
+    stateChangeBtn.onClick = [this] {
         audioProcessor.streamPicker = !audioProcessor.streamPicker;
         if (audioProcessor.streamPicker) {
-            stateChange.setButtonText("ST-elevation");
+            stateChangeBtn.setButtonText("ST-elevation");
         } else {
-            stateChange.setButtonText("Normal data");
+            stateChangeBtn.setButtonText("Normal data");
         }
     };
     
-    addAndMakeVisible(freqCutOff);
-    freqCutOff.setRange(1, 10);
-    freqCutOff.setValue(1);
-    freqCutOff.setTextValueSuffix(" Hz");
-    freqCutOff.addListener(this);
     
-    addAndMakeVisible(freqCutOffLabel);
-    freqCutOffLabel.setText("Filter cut off", juce::dontSendNotification);
-    freqCutOffLabel.attachToComponent(&freqCutOff, true);
+    /// Button printing the filtered data sets to the directory of the program
+    addAndMakeVisible(printDataBtn);
+    printDataBtn.setButtonText("Print Data");
+    printDataBtn.onClick = [this] {
+        printData();
+    };
     
+    /// LO Pass Slider
+    addAndMakeVisible(loPass);
+    loPass.setRange(0.5, 8);
+    loPass.setValue(2);
+    loPass.setTextValueSuffix(" Hz");
+    loPass.addListener(this);
+    
+    addAndMakeVisible(loPassLabel);
+    loPassLabel.setText("LO Pass", juce::dontSendNotification);
+    loPassLabel.attachToComponent(&loPass, true);
+    
+    /// HI Pass Slider
+    addAndMakeVisible(hiPass);
+    hiPass.setRange(0.0, 0.5);
+    hiPass.setValue(0.25);
+    hiPass.setTextValueSuffix(" Hz");
+    hiPass.addListener(this);
+    
+    addAndMakeVisible(hiPassLabel);
+    hiPassLabel.setText("HI Pass", juce::dontSendNotification);
+    hiPassLabel.attachToComponent(&hiPass, true);
+    
+    
+    /// Threshold slider
     addAndMakeVisible(threshold);
-    threshold.setRange(0.1, 1);
+    threshold.setRange(-1, 1);
     threshold.setValue(0.5);
     threshold.setTextValueSuffix(" mV");
     threshold.addListener(this);
@@ -96,7 +120,6 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     addAndMakeVisible(thresholdLabel);
     thresholdLabel.setText("Threshold", juce::dontSendNotification);
     thresholdLabel.attachToComponent(&threshold, true);
-    
     readDefaultData();
 }
 
@@ -134,7 +157,9 @@ void ICUSonificationAudioProcessorEditor::resized()
     playPause.setBounds(100, 150, getWidth() - 20, 20);
     Rewind.setBounds(100, 200, 20, 20);
     FastForward.setBounds(100, 250, 20, 20);
-    stateChange.setBounds(100, 300, 60, 30);
-    freqCutOff.setBounds(100, 350, 200, 30);
-    threshold.setBounds(100, 400, 200, 30);
+    stateChangeBtn.setBounds(100, 300, 60, 30);
+    loPass.setBounds(100, 350, 200, 30);
+    hiPass.setBounds(100, 400, 200, 30);
+    threshold.setBounds(100, 450, 200, 30);
+    printDataBtn.setBounds(500, 200, 60, 30);
 }

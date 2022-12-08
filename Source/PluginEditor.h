@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <iostream>
 #include "PluginProcessor.h"
 using namespace juce;
 
@@ -170,8 +171,11 @@ public:
     }
     
     void sliderValueChanged(Slider* slider) override {
-        if (slider == &freqCutOff) {
-            audioProcessor.calculateBIQCoeff(freqCutOff.getValue() , 0.7);
+        if (slider == &loPass) {
+            //audioProcessor.calculateBIQCoeff(freqCutOff.getValue() , 0.7);
+            audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
+        } else if (slider == &hiPass) {
+            audioProcessor.calculateHPFButterWorthCoeffs(hiPass.getValue());
         } else if (slider == &threshold) {
             audioProcessor.thresholdValue = threshold.getValue();
         }
@@ -180,11 +184,97 @@ public:
     void readDefaultData() {
         auto bundle = juce::File::getSpecialLocation (juce::File::currentExecutableFile).getParentDirectory().getParentDirectory().getParentDirectory()
             .getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory();
-        juce::File normalData = bundle.getChildFile("Source/normalData.txt");
-        juce::File STElevation = bundle.getChildFile("Source/ST-elevatedData.txt");
+        
+        String OSSeperator = juce::File::getSeparatorString();
+        
+        juce::File normalData = bundle.getChildFile("Source" + OSSeperator + "normalData.txt");
+        juce::File STElevation = bundle.getChildFile("Source" + OSSeperator + "ST-elevatedData.txt");
 
         readFileST(normalData);
         readFileST2(STElevation);
+    }
+    
+    void printData() {
+        // Calculating coefficients
+        audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
+        audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.707);
+        
+        //audioProcessor.calculateLPFBIQCoeff(loPass.getValue(), 0.707);
+        //audioProcessor.calculateHPButterWorthCoeffs(hiPass.getValue());
+        
+        // Finding the root directory
+        juce::File myfile = File::getSpecialLocation(File::currentApplicationFile).getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory().getParentDirectory();
+        
+        // Take Operating System seperator into account
+        String OSSeperator = juce::File::getSeparatorString();
+        
+        // Retrieving directory path
+        juce::File log1 = myfile.getChildFile("Source" + OSSeperator + "normalData_Output.txt");
+        juce::File log2 = myfile.getChildFile("Source" + OSSeperator + "ST-ElevatedData_Output.txt");
+        
+        // Creating necessary .txt files
+        log1.create();
+        log2.create();
+        
+        // Opening temporary file to offload data
+        TemporaryFile tempFile(log1);
+        TemporaryFile tempFile2(log2);
+        
+        FileOutputStream output1(tempFile.getFile());
+        FileOutputStream output2(tempFile2.getFile());
+        
+        if(!output1.openedOk() || !output2.openedOk()) {
+            DBG("Failed to create or locate the data.txt");
+            return;
+        }
+        
+        // Putting every entry through a Low Pass Filter
+        for (int i = 0; i < audioProcessor.dataVector.size() - 1; i++) {
+            
+            float LOPassData1 = audioProcessor.LOfilterData(audioProcessor.dataVector[i]);
+            float HI_LOPassData1 = audioProcessor.HIfilterData(LOPassData1);
+            
+            juce::String outputString1 = juce::String(HI_LOPassData1);
+            
+            output1.writeString(outputString1 + "\n");
+            output1.flush();
+            
+            if (output1.getStatus().failed()) {
+                return;
+            }
+            
+        }
+        
+        // Resetting
+        audioProcessor.resetCoeffs();
+        
+        audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
+        audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.707);
+        
+        
+        tempFile.overwriteTargetFileWithTemporary();
+        
+        // Putting every entry through a High Pass Filter
+        for (int i = 0; i < audioProcessor.dataVector2.size() - 1; i++) {
+            float LOPassData2 = audioProcessor.LOfilterData(audioProcessor.dataVector2[i]);
+            float HI_LOPassData2 = audioProcessor.HIfilterData(LOPassData2);
+            
+            juce::String outputString2 = juce::String(HI_LOPassData2);
+            
+            output2.writeString(outputString2 + "\n");
+            output2.flush();
+            
+            if (output2.getStatus().failed()) {
+                return;
+            }
+        }
+        
+        tempFile2.overwriteTargetFileWithTemporary();
+        
+        audioProcessor.resetCoeffs();
+        
+        audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
+        audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.707);
     }
 
 private:
@@ -218,11 +308,17 @@ private:
     String recordingLength;
     String ECGamplitude;
 
-    TextButton stateChange;
+    /// Buttons
+    TextButton stateChangeBtn;
+    TextButton printDataBtn;
     
     /// Sliders
-    Slider freqCutOff;
+    Slider loPass;
+    Slider hiPass;
     Slider threshold;
-    Label freqCutOffLabel;
+    
+    /// Labels for Sliders
+    Label loPassLabel;
+    Label hiPassLabel;
     Label thresholdLabel;
 };
