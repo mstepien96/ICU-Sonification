@@ -193,6 +193,10 @@ private:
     ToggleButton playPause;
     Label playPauseLabel;
 
+    /// Gate Sound button
+    ToggleButton gateSound;
+    Label gateSoundLabel;
+
     /// Rewind and Fast Forward
     TextButton Rewind;
     TextButton FastForward;

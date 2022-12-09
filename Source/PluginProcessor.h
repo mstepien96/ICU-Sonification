@@ -69,6 +69,7 @@ public:
     int vowelToSonify;
 
     void setGate(bool gate);
+    void setGateSound(bool gateSound);
 
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
@@ -77,6 +78,7 @@ public:
     int modForSamplingRate = 1;
     
     bool isPlaying = false;    // turns audio on/off
+    bool gateSoundChoice = false;    // choose the sound
     bool streamPicker = false; // true chooses first data, false the second
     bool dataRead = false;     // has data been read yet?
     bool dataReadTwo = false;  // has the second data sheet been read?

@@ -60,6 +60,16 @@ void ICUSonificationAudioProcessor::setGate(bool gate)
     }
 }
 
+void ICUSonificationAudioProcessor::setGateSound(bool gateSound)
+{
+    if (gateSound) {
+        fUI->setParamValue("gatesound", 1);
+    }
+    else {
+        fUI->setParamValue("gatesound", 0);
+    }
+}
+
 void ICUSonificationAudioProcessor::hiResTimerCallback() {
     timeMilliseconds++;
 
@@ -69,11 +79,14 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
             if (streamPicker) {
                 // freqToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 8731, 39200);  //87.31 = F2, 392 = G4, 110 = G2, 261.63 = F4
                 freqToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 201);
-                freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
+                // freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
+                freqToSonifyLog = mapDataLog(200, 400, freqToSonify, 201);
+                int freqForSine = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 50, 2000);
                 gainToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 30, 100);
                 vowelToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 100);
                 if (dataVector2[ECGcounter] > threshold) {
                     fUI->setParamValue("freq", (float)freqToSonifyLog / 100);
+                    fUI->setParamValue("freqsine", freqForSine);
                     //fUI->setParamValue("freq", 170);
                     fUI->setParamValue("gain", (float)gainToSonify / 100);
                     fUI->setParamValue("vowel", (float)vowelToSonify / 100);
@@ -83,15 +96,19 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                     fUI->setParamValue("vibratoGain", 0.1);
                 } else {
                     fUI->setParamValue("freq", 0.0);
+                    fUI->setParamValue("freqsine", 0.0);
                 }
             } else {
                 // freqToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 8731, 39200);
                 freqToSonify = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 0, 201);
-                freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
+                // freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
+                freqToSonifyLog = mapDataLog(200, 400, freqToSonify, 201);
+                int freqForSine = mapData(dataVector2[ECGcounter], dataMin2 + threshold, dataMax2, 50, 2000);
                 gainToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 30, 100);
                 vowelToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 0, 100);
                 if (dataVector[ECGcounter] > threshold) {
                     fUI->setParamValue("freq", (float)freqToSonifyLog / 100);
+                    fUI->setParamValue("freqsine", freqForSine);
                     //fUI->setParamValue("freq", 170);
                     fUI->setParamValue("gain", (float)gainToSonify / 100);
                     fUI->setParamValue("vowel", (float)vowelToSonify / 100);
@@ -101,6 +118,7 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                     fUI->setParamValue("vibratoGain", 0.1);
                 } else {
                     fUI->setParamValue("freq", 0.0);
+                    fUI->setParamValue("freqsine", 0.0);
                 }
             }
             

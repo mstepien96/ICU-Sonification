@@ -49,6 +49,16 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     playPauseLabel.setText("Play/Pause", juce::dontSendNotification);
     playPauseLabel.attachToComponent(&playPause, true);
 
+    // Gate Sound Button
+    addAndMakeVisible(gateSound);
+    gateSound.onClick = [this] {
+        audioProcessor.gateSoundChoice = gateSound.getToggleState();
+        audioProcessor.setGateSound(audioProcessor.gateSoundChoice);
+    };
+    addAndMakeVisible(gateSoundLabel);
+    gateSoundLabel.setText("Choose Sound", juce::dontSendNotification);
+    gateSoundLabel.attachToComponent(&gateSound, true);
+
     /// Rewind and Fast Forward
     addAndMakeVisible(Rewind);
     Rewind.onClick = [this] {
@@ -116,7 +126,8 @@ void ICUSonificationAudioProcessorEditor::resized()
     fileComp->setBounds(10, 10, getWidth() - 20, 20);
     textContent->setBounds(10, 40, getWidth() - 20, 100);
     playPause.setBounds(100, 150, getWidth() - 20, 20);
-    Rewind.setBounds(100, 200, 20, 20);
-    FastForward.setBounds(100, 250, 20, 20);
-    stateChange.setBounds(100, 300, 60, 30);
+    gateSound.setBounds(100, 200, getWidth() - 20, 20);
+    Rewind.setBounds(100, 250, 20, 20);
+    FastForward.setBounds(100, 300, 20, 20);
+    stateChange.setBounds(100, 350, 60, 30);
 }
