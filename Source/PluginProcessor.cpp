@@ -11,6 +11,9 @@
 #include "FaustEngine.h"
 #include <algorithm>
 #include <cmath>
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 //==============================================================================
 ICUSonificationAudioProcessor::ICUSonificationAudioProcessor()
@@ -181,21 +184,21 @@ void ICUSonificationAudioProcessor::calculateLPFButterWorthCoeffs(float fCutoffF
     
     //float C = tan((M_PI * fCutoffFreq) / 1000);
     
-    LP_a0 = 1 / (1 + sqrt(2 * C) + pow(C, 2));
+    LP_a0 = 1 / (1 + sqrt(2) * C + pow(C, 2));
     LP_a1 = 2 * LP_a0;
     LP_a2 = LP_a0;
     LP_b1 = 2 * LP_a0 * (1 - pow(C, 2));
-    LP_b2 = LP_a0 * (1 - sqrt(2 * C) + pow(C, 2));
+    LP_b2 = LP_a0 * (1 - sqrt(2) * C + pow(C, 2));
 }
 
 void ICUSonificationAudioProcessor::calculateHPFButterWorthCoeffs(float fCutoffFreq) {
     float C = (tan(M_PI * fCutoffFreq / 1000));
     
-    HP_a0 = 1 / (1 + sqrt(2 * C) + pow(C, 2));
+    HP_a0 = 1 / (1 + sqrt(2) * C + pow(C, 2));
     HP_a1 = -2 * HP_a0;
     HP_a2 = HP_a0;
     HP_b1 = 2 * HP_a0 * (pow(C, 2) - 1);
-    HP_b2 = HP_a0 * (1 - sqrt(2 * C) + pow(C, 2));
+    HP_b2 = HP_a0 * (1 - sqrt(2) * C + pow(C, 2));
 }
 
 void ICUSonificationAudioProcessor::resetCoeffs() {

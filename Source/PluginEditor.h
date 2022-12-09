@@ -161,12 +161,12 @@ public:
     
     // Changing path for file and update the filename
     void filenameComponentChanged(juce::FilenameComponent* fileComponentThatHasChanged) override {
-        if (fileComponentThatHasChanged == fileComp.get()) {
-            if (audioProcessor.dataRead == false) {
-                readFileST (fileComp->getCurrentFileText());
-            } else if (audioProcessor.dataRead == true && audioProcessor.dataReadTwo == false) {
-                readFileST2(fileComp->getCurrentFileText());
-            }
+        if (fileComponentThatHasChanged == fileComp.get() && !audioProcessor.dataRead) {
+            readFileST(fileComp->getCurrentFileText());
+        }
+        
+        if (fileComponentThatHasChanged == fileComp2.get() && !audioProcessor.dataReadTwo) {
+            readFileST2(fileComp2->getCurrentFileText());
         }
     }
     
@@ -175,7 +175,8 @@ public:
             //audioProcessor.calculateBIQCoeff(freqCutOff.getValue() , 0.7);
             audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
         } else if (slider == &hiPass) {
-            audioProcessor.calculateHPFButterWorthCoeffs(hiPass.getValue());
+            //audioProcessor.calculateHPFButterWorthCoeffs(hiPass.getValue());
+            audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.7);
         } else if (slider == &threshold) {
             audioProcessor.thresholdValue = threshold.getValue();
         }
@@ -195,6 +196,7 @@ public:
     }
     
     void printData() {
+        audioProcessor.resetCoeffs();
         // Calculating coefficients
         audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
         audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.707);
@@ -245,14 +247,13 @@ public:
             
         }
         
+        tempFile.overwriteTargetFileWithTemporary();
+        
         // Resetting
         audioProcessor.resetCoeffs();
         
         audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
         audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.707);
-        
-        
-        tempFile.overwriteTargetFileWithTemporary();
         
         // Putting every entry through a High Pass Filter
         for (int i = 0; i < audioProcessor.dataVector2.size() - 1; i++) {
@@ -286,6 +287,7 @@ private:
     
     /// File reader
     std::unique_ptr<juce::FilenameComponent> fileComp;
+    std::unique_ptr<juce::FilenameComponent> fileComp2;
 
     /// Text field
     std::unique_ptr<juce::TextEditor> textContent;
@@ -328,4 +330,7 @@ private:
     Label loPassLabel;
     Label hiPassLabel;
     Label thresholdLabel;
+    
+    Label dataSetLabel;
+    Label dataSet2Label;
 };

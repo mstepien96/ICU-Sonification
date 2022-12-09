@@ -18,7 +18,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     // editor's size to whatever you need it to be.
     
     // File reader initialization
-    fileComp.reset (new juce::FilenameComponent ("fileComp",
+    fileComp.reset(new juce::FilenameComponent("fileComp",
                                                  {},
                                                  false,
                                                  false,
@@ -27,9 +27,26 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
                                                  {},
                                                  "Select file to open"));
     
+    fileComp2.reset(new juce::FilenameComponent("fileComp2",
+                                                {},
+                                                false,
+                                                false,
+                                                false,
+                                                {},
+                                                {},
+                                                "Select file to open"));
+    
     addAndMakeVisible(fileComp.get());
+    addAndMakeVisible(fileComp2.get());
     // Listener in order to update after a file has been selected
     fileComp->addListener(this);
+    fileComp2->addListener(this);
+    
+    addAndMakeVisible(dataSetLabel);
+    dataSetLabel.setText("1st Dataset", juce::dontSendNotification);
+    
+    addAndMakeVisible(dataSet2Label);
+    dataSet2Label.setText("2nd Dataset", juce::dontSendNotification);
     
     // Text Field initialization
     textContent.reset(new juce::TextEditor());
@@ -116,7 +133,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     /// LO Pass Slider
     addAndMakeVisible(loPass);
-    loPass.setRange(0.5, 8);
+    loPass.setRange(0.5, 15);
     loPass.setValue(2);
     loPass.setTextValueSuffix(" Hz");
     loPass.addListener(this);
@@ -136,7 +153,6 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     hiPassLabel.setText("HI Pass", juce::dontSendNotification);
     hiPassLabel.attachToComponent(&hiPass, true);
     
-    
     /// Threshold slider
     addAndMakeVisible(threshold);
     threshold.setRange(-1, 1);
@@ -147,6 +163,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     addAndMakeVisible(thresholdLabel);
     thresholdLabel.setText("Threshold", juce::dontSendNotification);
     thresholdLabel.attachToComponent(&threshold, true);
+    
     readDefaultData();
 }
 
@@ -184,12 +201,15 @@ void ICUSonificationAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    fileComp->setBounds(10, 10, getWidth() - 20, 20);
-    textContent->setBounds(10, 40, getWidth() - 20, 70);
-
-    loPass.setBounds(300, 350, 200, 30);
-    hiPass.setBounds(300, 400, 200, 30);
-    threshold.setBounds(300, 450, 200, 30);
+    dataSetLabel.setBounds(10, 10, 300, 20);
+    fileComp->setBounds(100, 10, 300, 20);
+    dataSet2Label.setBounds(10, 60, 300, 20);
+    fileComp2->setBounds(100, 60, 300, 20);
+    textContent->setBounds(450, 10, 300, 70);
+    
+    currentTimeWindow.setBounds(350, 160, 60, 30);
+    ECGAmpWindow.setBounds(270, 160, 60, 30);
+    lengthWindow.setBounds(430, 160, 60, 30);
     
     stateChangeBtn.setBounds(310, 250, 150, 30);
     
@@ -197,9 +217,9 @@ void ICUSonificationAudioProcessorEditor::resized()
     fastForwardBtn.setBounds(430, 300, 60, 30);
     rewindBtn.setBounds(270, 300, 60, 30);
     
-    currentTimeWindow.setBounds(350, 140, 60, 30);
-    ECGAmpWindow.setBounds(270, 140, 60, 30);
-    lengthWindow.setBounds(430, 140, 60, 30);
+    loPass.setBounds(300, 350, 200, 30);
+    hiPass.setBounds(300, 400, 200, 30);
+    threshold.setBounds(300, 450, 200, 30);
     
     printDataBtn.setBounds(730, 550, 60, 30);
 }
