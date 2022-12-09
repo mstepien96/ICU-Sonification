@@ -161,11 +161,11 @@ public:
     
     // Changing path for file and update the filename
     void filenameComponentChanged(juce::FilenameComponent* fileComponentThatHasChanged) override {
-        if (fileComponentThatHasChanged == fileComp.get() && !audioProcessor.dataRead) {
+        if (fileComponentThatHasChanged == fileComp.get()) {
             readFileST(fileComp->getCurrentFileText());
         }
         
-        if (fileComponentThatHasChanged == fileComp2.get() && !audioProcessor.dataReadTwo) {
+        if (fileComponentThatHasChanged == fileComp2.get()) {
             readFileST2(fileComp2->getCurrentFileText());
         }
     }
