@@ -63,13 +63,17 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
     timeMilliseconds++;
 
     if (isPlaying) {
-        if (dataRead && timeMilliseconds % modForSamplingRate == 0) {
+        if (dataRead) {
+            //if (dataRead && timeMilliseconds % modForSamplingRate == 4) {
             //    // int freqToSonify = abs(std::min(int(dataArray[ECGcounter][1] * 1000), 2000));
             //    // int freqToSonify2 = std::max(freqToSonify, 50);
             
             if (streamPicker) {
+                // Filtering
                 float LOPassData = LOfilterData(dataVector2[ECGcounter]);
                 float HI_LOPassData = HIfilterData(LOPassData);
+                
+                // Mapping
                 int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
                 
                 if (dataVector2[ECGcounter] > thresholdValue) {
@@ -78,8 +82,11 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                     fUI->setParamValue("freq", 0.0);
                 }
             } else {
+                // Filtering
                 float LOPassData = LOfilterData(dataVector[ECGcounter]);
                 float HI_LOPassData = HIfilterData(LOPassData);
+                
+                // Mapping
                 int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
                 
                 if (dataVector[ECGcounter] > thresholdValue) {
