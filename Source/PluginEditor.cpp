@@ -100,7 +100,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     };
     
     addAndMakeVisible(stateLabel);
-    stateLabel.setText("Click to change data", juce::dontSendNotification);
+    stateLabel.setText("Current data, click to change:", juce::dontSendNotification);
     stateLabel.attachToComponent(&stateChangeBtn, false);
     
     /// Button printing the filtered data sets to the directory of the program
@@ -163,6 +163,7 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
     // g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
+    
     if (audioProcessor.dataRead) {
         textContent->clear();
         currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
@@ -190,7 +191,7 @@ void ICUSonificationAudioProcessorEditor::resized()
     hiPass.setBounds(300, 400, 200, 30);
     threshold.setBounds(300, 450, 200, 30);
     
-    stateChangeBtn.setBounds(320, 250, 120, 30);
+    stateChangeBtn.setBounds(310, 250, 150, 30);
     
     playPauseBtn.setBounds(350, 300, 60, 30);
     fastForwardBtn.setBounds(430, 300, 60, 30);
