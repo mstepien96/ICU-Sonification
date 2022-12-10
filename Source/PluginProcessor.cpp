@@ -76,6 +76,7 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                 // Mapping
                 int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
                 
+                // Applying Threshold
                 if (dataVector2[ECGcounter] > thresholdValue) {
                     fUI->setParamValue("freq", freqToSonify);
                 } else {
@@ -89,6 +90,7 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                 // Mapping
                 int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
                 
+                // Applying Threshold
                 if (dataVector[ECGcounter] > thresholdValue) {
                     fUI->setParamValue("freq", freqToSonify);
                 } else {
@@ -99,7 +101,7 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
             ECGcounter++;
         }
         
-        if (ECGcounter > (int(dataVector.size()) - 2 )) {
+        if (ECGcounter > (int(dataVector.size()) - 2 ) || ECGcounter > (int(dataVector2.size()) - 2 )) {
             ECGcounter = 0;
         }
 

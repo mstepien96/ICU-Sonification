@@ -99,9 +99,11 @@ public:
             return;
         }
         
-        textContent->clear();
-        
         juce::int64 counter = 0;
+        
+        if (!audioProcessor.dataVector.empty()) {
+            audioProcessor.dataVector.clear();
+        }
         
         while(!inputStream.isExhausted()) {
             auto line = inputStream.readNextLine();
@@ -120,7 +122,14 @@ public:
             }
         }
         
-        audioProcessor.dataRead = true;
+        if (!audioProcessor.dataVector.empty() && !audioProcessor.dataVector2.empty()) {
+            playPauseBtn.setEnabled(true);
+            fastForwardBtn.setEnabled(true);
+            rewindBtn.setEnabled(true);
+            
+            audioProcessor.dataRead = true;
+        }
+        
     }
     
     void readFileST2(const juce::File& fileToRead) {
@@ -136,9 +145,11 @@ public:
             return;
         }
         
-        textContent->clear();
-        
         juce::int64 counter = 0;
+        
+        if (!audioProcessor.dataVector2.empty()) {
+            audioProcessor.dataVector2.clear();
+        }
         
         while(!inputStream.isExhausted()) {
             auto line = inputStream.readNextLine();
@@ -155,7 +166,13 @@ public:
             }
         }
         
-        audioProcessor.dataReadTwo = true;
+        if (!audioProcessor.dataVector.empty() && !audioProcessor.dataVector2.empty()) {
+            playPauseBtn.setEnabled(true);
+            fastForwardBtn.setEnabled(true);
+            rewindBtn.setEnabled(true);
+            
+            audioProcessor.dataRead = true;
+        }
     }
     
     
@@ -279,52 +296,49 @@ public:
     }
     
     void feedDataSelectors() {
-        dataSelector.addItem("MOESM1_noise.txt", 1);
-        dataSelector.addItem("MOESM2_noise.txt", 2);
-        dataSelector.addItem("MOESM3_noise.txt", 3);
-        dataSelector.addItem("MOESM4_noise.txt", 4);
-        dataSelector.addItem("MOESM5_noise.txt", 5);
-        dataSelector.addItem("MOESM6_noise.txt", 6);
-        dataSelector.addItem("MOESM7_noise.txt", 7);
-        dataSelector.addItem("MOESM8_noise.txt", 8);
-        dataSelector.addItem("MOESM9_noise.txt", 9);
-        dataSelector.addItem("MOESM10_noise.txt", 10);
-        dataSelector.addItem("MOESM11_noise.txt", 11);
-        dataSelector.addItem("MOESM12_noise.txt", 12);
-        dataSelector.addItem("MOESM13_noise.txt", 13);
-        dataSelector.addItem("MOESM14_noise.txt", 14);
-        dataSelector.addItem("MOESM15_noise.txt", 15);
-        dataSelector.addItem("MOESM16_noise.txt", 16);
-        dataSelector.addItem("MOESM17_noise.txt", 17);
-        dataSelector.addItem("MOESM18_noise.txt", 18);
-        dataSelector.addItem("MOESM19_noise.txt", 19);
-        dataSelector.addItem("MOESM20_noise.txt", 20);
-        dataSelector.addItem("normalData.txt", 21);
+        dataSelector.addItem("normalData.txt", 1);
+        dataSelector.addItem("MOESM1_noise.txt", 2);
+        dataSelector.addItem("MOESM2_noise.txt", 3);
+        dataSelector.addItem("MOESM3_noise.txt", 4);
+        dataSelector.addItem("MOESM4_noise.txt", 5);
+        dataSelector.addItem("MOESM5_noise.txt", 6);
+        dataSelector.addItem("MOESM6_noise.txt", 7);
+        dataSelector.addItem("MOESM7_noise.txt", 8);
+        dataSelector.addItem("MOESM8_noise.txt", 9);
+        dataSelector.addItem("MOESM9_noise.txt", 10);
+        dataSelector.addItem("MOESM10_noise.txt", 11);
+        dataSelector.addItem("MOESM11_noise.txt", 12);
+        dataSelector.addItem("MOESM12_noise.txt", 13);
+        dataSelector.addItem("MOESM13_noise.txt", 14);
+        dataSelector.addItem("MOESM14_noise.txt", 15);
+        dataSelector.addItem("MOESM15_noise.txt", 16);
+        dataSelector.addItem("MOESM16_noise.txt", 17);
+        dataSelector.addItem("MOESM17_noise.txt", 18);
+        dataSelector.addItem("MOESM18_noise.txt", 19);
+        dataSelector.addItem("MOESM19_noise.txt", 20);
+        dataSelector.addItem("MOESM20_noise.txt", 21);
         
-        dataSelector2.addItem("MOESM1_noise.txt", 1);
-        dataSelector2.addItem("MOESM2_noise.txt", 2);
-        dataSelector2.addItem("MOESM3_noise.txt", 3);
-        dataSelector2.addItem("MOESM4_noise.txt", 4);
-        dataSelector2.addItem("MOESM5_noise.txt", 5);
-        dataSelector2.addItem("MOESM6_noise.txt", 6);
-        dataSelector2.addItem("MOESM7_noise.txt", 7);
-        dataSelector2.addItem("MOESM8_noise.txt", 8);
-        dataSelector2.addItem("MOESM9_noise.txt", 9);
-        dataSelector2.addItem("MOESM10_noise.txt", 10);
-        dataSelector2.addItem("MOESM11_noise.txt", 11);
-        dataSelector2.addItem("MOESM12_noise.txt", 12);
-        dataSelector2.addItem("MOESM13_noise.txt", 13);
-        dataSelector2.addItem("MOESM14_noise.txt", 14);
-        dataSelector2.addItem("MOESM15_noise.txt", 15);
-        dataSelector2.addItem("MOESM16_noise.txt", 16);
-        dataSelector2.addItem("MOESM17_noise.txt", 17);
-        dataSelector2.addItem("MOESM18_noise.txt", 18);
-        dataSelector2.addItem("MOESM19_noise.txt", 19);
-        dataSelector2.addItem("MOESM20_noise.txt", 20);
-        dataSelector2.addItem("ST-elevatedData.txt", 21);
-    
-        dataSelector.setSelectedId(21);
-        dataSelector2.setSelectedId(21);
+        dataSelector2.addItem("ST-elevatedData.txt", 1);
+        dataSelector2.addItem("MOESM1_noise.txt", 2);
+        dataSelector2.addItem("MOESM2_noise.txt", 3);
+        dataSelector2.addItem("MOESM3_noise.txt", 4);
+        dataSelector2.addItem("MOESM4_noise.txt", 5);
+        dataSelector2.addItem("MOESM5_noise.txt", 6);
+        dataSelector2.addItem("MOESM6_noise.txt", 7);
+        dataSelector2.addItem("MOESM7_noise.txt", 8);
+        dataSelector2.addItem("MOESM8_noise.txt", 9);
+        dataSelector2.addItem("MOESM9_noise.txt", 10);
+        dataSelector2.addItem("MOESM10_noise.txt", 11);
+        dataSelector2.addItem("MOESM11_noise.txt", 12);
+        dataSelector2.addItem("MOESM12_noise.txt", 13);
+        dataSelector2.addItem("MOESM13_noise.txt", 14);
+        dataSelector2.addItem("MOESM14_noise.txt", 15);
+        dataSelector2.addItem("MOESM15_noise.txt", 16);
+        dataSelector2.addItem("MOESM16_noise.txt", 17);
+        dataSelector2.addItem("MOESM17_noise.txt", 18);
+        dataSelector2.addItem("MOESM18_noise.txt", 19);
+        dataSelector2.addItem("MOESM19_noise.txt", 20);
+        dataSelector2.addItem("MOESM20_noise.txt", 21);
     }
     
     void selectDataset() {
@@ -383,6 +397,9 @@ private:
     Label ECGAmpLabel;
     TextButton lengthWindow;
     Label lengthLabel;
+    
+    TextButton ECGAmpWindow2;
+    TextButton lengthWindow2;
 
     /// Player Buttons
     TextButton playPauseBtn;
@@ -392,7 +409,9 @@ private:
     /// Timesteps
     String currentTime;
     String recordingLength;
+    String recordingLength2;
     String ECGamplitude;
+    String ECGamplitude2;
 
     /// Buttons
     TextButton stateChangeBtn;

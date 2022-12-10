@@ -83,7 +83,6 @@ public:
     bool isPlaying = false;    // turns audio on/off
     bool streamPicker = false; // true chooses first data, false the second
     bool dataRead = false;     // has data been read yet?
-    bool dataReadTwo = false;  // has the second data sheet been read?
     
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
     std::vector<float> dataVector2; // Dynamic float array for reading in ECG data

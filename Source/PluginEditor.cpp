@@ -53,29 +53,33 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     /// Windows
     addAndMakeVisible(currentTimeWindow);
-    currentTimeWindow.setEnabled(false);
     currentTimeWindow.setButtonText("0 s");
     addAndMakeVisible(currentTimeLabel);
     currentTimeLabel.setText("Time:", juce::dontSendNotification);
     currentTimeLabel.attachToComponent(&currentTimeWindow, false);
     
     addAndMakeVisible(ECGAmpWindow);
-    ECGAmpWindow.setEnabled(false);
     ECGAmpWindow.setButtonText("0 mV");
     addAndMakeVisible(ECGAmpLabel);
     ECGAmpLabel.setText("Amp.:", juce::dontSendNotification);
     ECGAmpLabel.attachToComponent(&ECGAmpWindow, false);
     
+    addAndMakeVisible(ECGAmpWindow2);
+    ECGAmpWindow2.setButtonText("0 mV");
+    
     addAndMakeVisible(lengthWindow);
-    lengthWindow.setEnabled(false);
     lengthWindow.setButtonText("0 s");
     addAndMakeVisible(lengthLabel);
     lengthLabel.setText("Dur.:", juce::dontSendNotification);
     lengthLabel.attachToComponent(&lengthWindow, false);
     
+    addAndMakeVisible(lengthWindow2);
+    lengthWindow2.setButtonText("0 s");
+    
     /// Player Section
     addAndMakeVisible(playPauseBtn);
     playPauseBtn.setButtonText("Play");
+    playPauseBtn.setEnabled(false);
     playPauseBtn.onClick = [this] {
         audioProcessor.isPlaying = !audioProcessor.isPlaying;
         audioProcessor.setGate(audioProcessor.isPlaying);
@@ -89,14 +93,21 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     addAndMakeVisible(fastForwardBtn);
     fastForwardBtn.setButtonText("+ 1 sec.");
+    fastForwardBtn.setEnabled(false);
     fastForwardBtn.onClick = [this] {
         audioProcessor.ECGcounter = std::min(int(audioProcessor.dataVector.size() - 1), int(audioProcessor.ECGcounter + 1 / audioProcessor.samplingRate));
+        currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
+        
+        currentTimeWindow.setButtonText(currentTime + " s");
     };
     
     addAndMakeVisible(rewindBtn);
     rewindBtn.setButtonText("- 1 sec.");
+    rewindBtn.setEnabled(false);
     rewindBtn.onClick = [this] {
         audioProcessor.ECGcounter = std::max(0, int(audioProcessor.ECGcounter - 1 / audioProcessor.samplingRate));
+        currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
+        currentTimeWindow.setButtonText(currentTime + " s");
     };
     
     /// Button changing between the state of the healhy and unhealthy dataset
@@ -174,28 +185,29 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     dataSelector.onChange = [this] {
         selectDataset();
         
-        if (audioProcessor.dataRead) {
-            textContent->clear();
-            currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
-            textContent->insertTextAtCaret("Current Time: " + currentTime + " s" + juce::newLine);
-            recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
-            textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s" + juce::newLine);
-            ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
-            textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV");
-            
-            currentTimeWindow.setButtonText(currentTime + " s");
-            ECGAmpWindow.setButtonText(ECGamplitude + " mV");
-            lengthWindow.setButtonText(recordingLength + " s");
-        }
+        currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
+        recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
+        ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
         
-        
+        currentTimeWindow.setButtonText(currentTime + " s");
+        ECGAmpWindow.setButtonText(ECGamplitude + " mV");
+        lengthWindow.setButtonText(recordingLength + " s");
     };
     
     dataSelector2.onChange = [this] {
         selectDataset2();
+        
+        ECGamplitude2 = juce::String(audioProcessor.dataVector2[audioProcessor.ECGcounter]);
+        recordingLength2 = juce::String(int(audioProcessor.dataVector2.size() * audioProcessor.samplingRate));
+        
+        ECGAmpWindow2.setButtonText(ECGamplitude2 + " mV");
+        lengthWindow2.setButtonText(recordingLength2 + " s");
     };
     
-    readDefaultData();    
+    dataSelector.setSelectedId(1);
+    dataSelector2.setSelectedId(1);
+    
+    //readDefaultData();
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -211,6 +223,23 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
     // g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
+    
+    if (audioProcessor.isPlaying) {
+        currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
+        
+        recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
+        recordingLength2 = juce::String(int(audioProcessor.dataVector2.size() * audioProcessor.samplingRate));
+        
+        ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
+        ECGamplitude2 = juce::String(audioProcessor.dataVector2[audioProcessor.ECGcounter]);
+        
+        currentTimeWindow.setButtonText(currentTime + " s");
+        ECGAmpWindow.setButtonText(ECGamplitude + " mV");
+        lengthWindow.setButtonText(recordingLength + " s");
+        
+        ECGAmpWindow2.setButtonText(ECGamplitude2 + " mV");
+        lengthWindow2.setButtonText(recordingLength2 + " s");
+    }
 }
 
 void ICUSonificationAudioProcessorEditor::resized()
@@ -218,15 +247,18 @@ void ICUSonificationAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    dataSelector.setBounds(10, 30, 150, 20);
-    dataSelector2.setBounds(10, 80, 150, 20);
-    textContent->setBounds(450, 10, 300, 70);
+    dataSelector.setBounds(150, 35, 150, 20);
+    dataSelector2.setBounds(150, 85, 150, 20);
     
-    currentTimeWindow.setBounds(350, 160, 60, 30);
-    ECGAmpWindow.setBounds(270, 160, 60, 30);
-    lengthWindow.setBounds(430, 160, 60, 30);
+    currentTimeWindow.setBounds(330, 250, 100, 30);
+    ECGAmpWindow.setBounds(310, 30, 100, 30);
+    lengthWindow.setBounds(420, 30, 100, 30);
     
-    stateChangeBtn.setBounds(310, 250, 150, 30);
+    ECGAmpWindow2.setBounds(310, 80, 100, 30);
+    lengthWindow2.setBounds(420, 80, 100, 30);
+    
+    currentTimeWindow.setBounds(270, 250, 60, 30);
+    stateChangeBtn.setBounds(350, 250, 150, 30);
     
     playPauseBtn.setBounds(350, 300, 60, 30);
     fastForwardBtn.setBounds(430, 300, 60, 30);
