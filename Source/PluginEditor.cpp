@@ -38,15 +38,16 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     addAndMakeVisible(fileComp.get());
     addAndMakeVisible(fileComp2.get());
-    // Listener in order to update after a file has been selected
     fileComp->addListener(this);
     fileComp2->addListener(this);
     
     addAndMakeVisible(dataSetLabel);
     dataSetLabel.setText("1st Dataset", juce::dontSendNotification);
+    dataSetLabel.attachToComponent(&dataSelector, false);
     
     addAndMakeVisible(dataSet2Label);
     dataSet2Label.setText("2nd Dataset", juce::dontSendNotification);
+    dataSet2Label.attachToComponent(&dataSelector2, false);
     
     // Text Field initialization
     textContent.reset(new juce::TextEditor());
@@ -165,16 +166,33 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     thresholdLabel.attachToComponent(&threshold, true);
     
     addAndMakeVisible(dataSelector);
-    
+    feedDataSelectors();
     dataSelector.onChange = [this] {
-        DBG("Data Selector change");
         selectDataset();
+        
+        if (audioProcessor.dataRead) {
+            textContent->clear();
+            currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
+            textContent->insertTextAtCaret("Current Time: " + currentTime + " s" + juce::newLine);
+            recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
+            textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s" + juce::newLine);
+            ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
+            textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV");
+            
+            currentTimeWindow.setButtonText(currentTime + " s");
+            ECGAmpWindow.setButtonText(ECGamplitude + " mV");
+            lengthWindow.setButtonText(recordingLength + " s");
+        }
+        
+        
     };
     
-    readDefaultData();
+    addAndMakeVisible(dataSelector2);
+    dataSelector2.onChange = [this] {
+        selectDataset2();
+    };
     
-    feedDataSelector();
-    
+    readDefaultData();    
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -190,31 +208,14 @@ void ICUSonificationAudioProcessorEditor::paint (juce::Graphics& g)
     g.setColour (juce::Colours::white);
     g.setFont (15.0f);
     // g.drawText("Some Text", getLocalBounds(), juce::Justification::centred, false);
-    
-    if (audioProcessor.dataRead) {
-        textContent->clear();
-        currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
-        textContent->insertTextAtCaret("Current Time: " + currentTime + " s" + juce::newLine);
-        recordingLength = juce::String(int(audioProcessor.dataVector.size() * audioProcessor.samplingRate));
-        textContent->insertTextAtCaret("Recording Length: " + recordingLength + " s" + juce::newLine);
-        ECGamplitude = juce::String(audioProcessor.dataVector[audioProcessor.ECGcounter]);
-        textContent->insertTextAtCaret("ECG amplitude: " + ECGamplitude + " mV");
-        
-        currentTimeWindow.setButtonText(currentTime + " s");
-        ECGAmpWindow.setButtonText(ECGamplitude + " mV");
-        lengthWindow.setButtonText(recordingLength + " s");
-    }
 }
 
 void ICUSonificationAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    
-    dataSetLabel.setBounds(10, 10, 300, 20);
-    fileComp->setBounds(100, 10, 300, 20);
-    dataSet2Label.setBounds(10, 60, 300, 20);
-    fileComp2->setBounds(100, 60, 300, 20);
+    fileComp->setBounds(30, 520, 300, 20);
+    fileComp2->setBounds(30, 560, 300, 20);
     textContent->setBounds(450, 10, 300, 70);
     
     currentTimeWindow.setBounds(350, 160, 60, 30);
@@ -233,5 +234,6 @@ void ICUSonificationAudioProcessorEditor::resized()
     
     printDataBtn.setBounds(730, 550, 60, 30);
     
-    dataSelector.setBounds(100, 550, 100, 20);
+    dataSelector.setBounds(30, 30, 150, 20);
+    dataSelector2.setBounds(30, 80, 150, 20);
 }
