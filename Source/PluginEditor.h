@@ -277,6 +277,24 @@ public:
         audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
         audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.707);
     }
+    
+    void feedDataSelector() {
+        dataSelector.addItem("Lol", 1);
+        dataSelector.addItem("Second", 2);
+        
+        dataSelector.setSelectedId (1);
+    }
+    
+    void selectDataset() {
+        auto resources = juce::File::getSpecialLocation (juce::File::currentApplicationFile)
+                .getChildFile ("Contents")
+                .getChildFile ("Resources");
+        
+        auto resources2 = juce::File::getSpecialLocation(juce::File::hostApplicationPath);
+        
+        DBG(resources.getFullPathName());
+        DBG(resources2.getFullPathName());
+    }
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -333,4 +351,6 @@ private:
     
     Label dataSetLabel;
     Label dataSet2Label;
+    
+    ComboBox dataSelector;
 };

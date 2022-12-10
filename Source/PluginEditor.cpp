@@ -164,7 +164,17 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     thresholdLabel.setText("Threshold", juce::dontSendNotification);
     thresholdLabel.attachToComponent(&threshold, true);
     
+    addAndMakeVisible(dataSelector);
+    
+    dataSelector.onChange = [this] {
+        DBG("Data Selector change");
+        selectDataset();
+    };
+    
     readDefaultData();
+    
+    feedDataSelector();
+    
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -222,4 +232,6 @@ void ICUSonificationAudioProcessorEditor::resized()
     threshold.setBounds(300, 450, 200, 30);
     
     printDataBtn.setBounds(730, 550, 60, 30);
+    
+    dataSelector.setBounds(100, 550, 100, 20);
 }
