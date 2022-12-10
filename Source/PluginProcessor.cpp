@@ -49,8 +49,7 @@ int ICUSonificationAudioProcessor::mapDataToFreq(float ECGdata, float dataMin, f
     return ECGdataMapped;
 }
 
-void ICUSonificationAudioProcessor::setGate(bool gate)
-{
+void ICUSonificationAudioProcessor::setGate(bool gate) {
     if (gate) {
         fUI->setParamValue("gate", 1);
     }

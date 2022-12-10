@@ -36,20 +36,14 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
                                                 {},
                                                 "Select file to open"));
     
+    setSize (800, 600);
+    
     addAndMakeVisible(fileComp.get());
     addAndMakeVisible(fileComp2.get());
     fileComp->addListener(this);
     fileComp2->addListener(this);
     addAndMakeVisible(selectInfoLabel);
     selectInfoLabel.setText("Manually select if data not loaded", juce::dontSendNotification);
-    
-    // Text Field initialization
-    textContent.reset(new juce::TextEditor());
-    addAndMakeVisible(textContent.get());
-    textContent->setMultiLine(true);
-    textContent->setReadOnly(true);
-    textContent->setCaretVisible(false);
-    setSize (800, 600);
     
     /// Windows
     addAndMakeVisible(currentTimeWindow);

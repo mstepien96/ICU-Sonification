@@ -38,8 +38,6 @@ public:
             return;
         }
         
-        // Clearing after loading
-        textContent->clear();
         // Counter used in ensuring we don't load the 12 million rows
         juce::int64 counter = 0;
         // Counter for array indexing
@@ -78,7 +76,6 @@ public:
             counter++;
             if (counter > 10000) {  // was 252 & 2502
                 audioProcessor.dataRead = true;
-                textContent->insertTextAtCaret("Reading finished");
                 break;
             }
         }
@@ -117,7 +114,6 @@ public:
             
             if (counter > 100000) {
                 audioProcessor.dataRead = true;
-                textContent->insertTextAtCaret("Reading finished");
                 break;
             }
         }
@@ -380,9 +376,6 @@ private:
     /// File reader
     std::unique_ptr<juce::FilenameComponent> fileComp;
     std::unique_ptr<juce::FilenameComponent> fileComp2;
-
-    /// Text field
-    std::unique_ptr<juce::TextEditor> textContent;
 
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
