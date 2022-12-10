@@ -130,6 +130,7 @@ public:
             audioProcessor.dataRead = true;
         }
         
+        readyLabel.setText("Ready", juce::dontSendNotification);
     }
     
     void readFileST2(const juce::File& fileToRead) {
@@ -173,6 +174,8 @@ public:
             
             audioProcessor.dataRead = true;
         }
+        
+        readyLabel2.setText("Ready", juce::dontSendNotification);
     }
     
     
@@ -397,6 +400,8 @@ private:
     Label ECGAmpLabel;
     TextButton lengthWindow;
     Label lengthLabel;
+    Label readyLabel;
+    Label readyLabel2;
     
     TextButton ECGAmpWindow2;
     TextButton lengthWindow2;

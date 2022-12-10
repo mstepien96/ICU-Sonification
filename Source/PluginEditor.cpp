@@ -76,6 +76,11 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     addAndMakeVisible(lengthWindow2);
     lengthWindow2.setButtonText("0 s");
     
+    addAndMakeVisible(readyLabel);
+    readyLabel.setText("Not Ready", juce::dontSendNotification);
+    addAndMakeVisible(readyLabel2);
+    readyLabel2.setText("Not Ready", juce::dontSendNotification);
+    
     /// Player Section
     addAndMakeVisible(playPauseBtn);
     playPauseBtn.setButtonText("Play");
@@ -97,7 +102,6 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     fastForwardBtn.onClick = [this] {
         audioProcessor.ECGcounter = std::min(int(audioProcessor.dataVector.size() - 1), int(audioProcessor.ECGcounter + 1 / audioProcessor.samplingRate));
         currentTime = juce::String(audioProcessor.ECGcounter * audioProcessor.samplingRate);
-        
         currentTimeWindow.setButtonText(currentTime + " s");
     };
     
@@ -204,8 +208,8 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
         lengthWindow2.setButtonText(recordingLength2 + " s");
     };
     
-    dataSelector.setSelectedId(1);
-    dataSelector2.setSelectedId(1);
+    dataSelector.setSelectedId(0);
+    dataSelector2.setSelectedId(0);
     
     //readDefaultData();
 }
@@ -247,15 +251,16 @@ void ICUSonificationAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     
-    dataSelector.setBounds(150, 35, 150, 20);
-    dataSelector2.setBounds(150, 85, 150, 20);
+    dataSelector.setBounds(170, 35, 150, 20);
+    dataSelector2.setBounds(170, 85, 150, 20);
     
-    currentTimeWindow.setBounds(330, 250, 100, 30);
-    ECGAmpWindow.setBounds(310, 30, 100, 30);
-    lengthWindow.setBounds(420, 30, 100, 30);
+    ECGAmpWindow.setBounds(330, 30, 100, 30);
+    lengthWindow.setBounds(440, 30, 100, 30);
+    readyLabel.setBounds(550, 30, 100, 30);
     
-    ECGAmpWindow2.setBounds(310, 80, 100, 30);
-    lengthWindow2.setBounds(420, 80, 100, 30);
+    ECGAmpWindow2.setBounds(330, 80, 100, 30);
+    lengthWindow2.setBounds(440, 80, 100, 30);
+    readyLabel2.setBounds(550, 80, 100, 30);
     
     currentTimeWindow.setBounds(270, 250, 60, 30);
     stateChangeBtn.setBounds(350, 250, 150, 30);
