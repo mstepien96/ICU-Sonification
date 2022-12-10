@@ -321,9 +321,10 @@ public:
         dataSelector2.addItem("MOESM18_noise.txt", 18);
         dataSelector2.addItem("MOESM19_noise.txt", 19);
         dataSelector2.addItem("MOESM20_noise.txt", 20);
+        dataSelector2.addItem("ST-elevatedData.txt", 21);
     
         dataSelector.setSelectedId(21);
-        dataSelector2.setSelectedId(0);
+        dataSelector2.setSelectedId(21);
     }
     
     void selectDataset() {
@@ -369,6 +370,12 @@ private:
     /// Timer
     std::unique_ptr<juce::HighResolutionTimer> timer;
     
+    /// Dataset Selectors
+    ComboBox dataSelector;
+    ComboBox dataSelector2;
+    Label dataSetLabel;
+    Label dataSet2Label;
+    
     /// Visualization
     TextButton currentTimeWindow;
     Label currentTimeLabel;
@@ -405,10 +412,5 @@ private:
     Label hiPassLabel;
     Label thresholdLabel;
     
-    Label dataSetLabel;
-    Label dataSet2Label;
-    
-    /// Dataset Selectors
-    ComboBox dataSelector;
-    ComboBox dataSelector2;
+    Label selectInfoLabel;
 };

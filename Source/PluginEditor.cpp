@@ -40,14 +40,8 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     addAndMakeVisible(fileComp2.get());
     fileComp->addListener(this);
     fileComp2->addListener(this);
-    
-    addAndMakeVisible(dataSetLabel);
-    dataSetLabel.setText("1st Dataset", juce::dontSendNotification);
-    dataSetLabel.attachToComponent(&dataSelector, false);
-    
-    addAndMakeVisible(dataSet2Label);
-    dataSet2Label.setText("2nd Dataset", juce::dontSendNotification);
-    dataSet2Label.attachToComponent(&dataSelector2, false);
+    addAndMakeVisible(selectInfoLabel);
+    selectInfoLabel.setText("Manually select if data not loaded", juce::dontSendNotification);
     
     // Text Field initialization
     textContent.reset(new juce::TextEditor());
@@ -166,7 +160,17 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     thresholdLabel.attachToComponent(&threshold, true);
     
     addAndMakeVisible(dataSelector);
+    addAndMakeVisible(dataSelector2);
+    
+    addAndMakeVisible(dataSetLabel);
+    dataSetLabel.setText("1st Dataset", juce::dontSendNotification);
+    dataSetLabel.attachToComponent(&dataSelector, false);
+    
+    addAndMakeVisible(dataSet2Label);
+    dataSet2Label.setText("2nd Dataset", juce::dontSendNotification);
+    dataSet2Label.attachToComponent(&dataSelector2, false);
     feedDataSelectors();
+    
     dataSelector.onChange = [this] {
         selectDataset();
         
@@ -187,7 +191,6 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
         
     };
     
-    addAndMakeVisible(dataSelector2);
     dataSelector2.onChange = [this] {
         selectDataset2();
     };
@@ -214,8 +217,9 @@ void ICUSonificationAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    fileComp->setBounds(30, 520, 300, 20);
-    fileComp2->setBounds(30, 560, 300, 20);
+    
+    dataSelector.setBounds(10, 30, 150, 20);
+    dataSelector2.setBounds(10, 80, 150, 20);
     textContent->setBounds(450, 10, 300, 70);
     
     currentTimeWindow.setBounds(350, 160, 60, 30);
@@ -234,6 +238,7 @@ void ICUSonificationAudioProcessorEditor::resized()
     
     printDataBtn.setBounds(730, 550, 60, 30);
     
-    dataSelector.setBounds(30, 30, 150, 20);
-    dataSelector2.setBounds(30, 80, 150, 20);
+    fileComp->setBounds(10, 550, 180, 20);
+    fileComp2->setBounds(10, 575, 180, 20);
+    selectInfoLabel.setBounds(10, 525, 200, 20);
 }
