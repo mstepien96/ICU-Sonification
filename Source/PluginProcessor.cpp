@@ -42,11 +42,17 @@ const juce::String ICUSonificationAudioProcessor::getName() const
     return JucePlugin_Name;
 }
 
-int ICUSonificationAudioProcessor::mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax) {
-    float mappingFactor = (freqMax - freqMin) / (dataMax - dataMin);
+int ICUSonificationAudioProcessor::mapData(float ECGdata, float dataMin, float dataMax, int sliderMin, int sliderMax) {
+    float mappingFactor = (sliderMax - sliderMin) / (dataMax - dataMin);
     int ECGdataMapped = int((ECGdata - dataMin) * mappingFactor + dataMin);
 
     return ECGdataMapped;
+}
+
+int ICUSonificationAudioProcessor::mapDataLog(float freqMin, float freqMax, int dataToSonify, int numberOfDataPoints) {
+    float logData = freqMin * pow(freqMax / freqMin, dataToSonify / (float)(numberOfDataPoints - 1));
+
+    return (int)logData * 100;
 }
 
 void ICUSonificationAudioProcessor::setGate(bool gate) {
@@ -55,6 +61,15 @@ void ICUSonificationAudioProcessor::setGate(bool gate) {
     }
     else {
         fUI->setParamValue("gate", 0);
+    }
+}
+
+void ICUSonificationAudioProcessor::setGateSound(bool gateSound) {
+    if (gateSound) {
+        fUI->setParamValue("gatesound", 1);
+    }
+    else {
+        fUI->setParamValue("gatesound", 0);
     }
 }
 
@@ -73,13 +88,49 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                 float HI_LOPassData = HIfilterData(LOPassData);
                 
                 // Mapping
-                int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
+                freqToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 0, 201);
+                // freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
+                freqToSonifyLog = mapDataLog(200, 400, freqToSonify, 201);
+                
+                int freqForSine = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 50, 2000);
+                gainToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 30, 100);
+                vowelToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 0, 100);
+                
+                //int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
+                
+                // ST Detection
+                if (exceededThreshold) {
+                    detectSTCounter++;
+                    
+                    if (detectSTCounter < 200 && dataVector2[ECGcounter] > thresholdValue && !STDetected) {
+                        STDetected = !STDetected;
+                        DBG("ST-Elevation Detected");
+                    } else if (detectSTCounter >= 200) {
+                        detectSTCounter = 0;
+                        exceededThreshold = !exceededThreshold;
+                    }
+                }
                 
                 // Applying Threshold
                 if (dataVector2[ECGcounter] > thresholdValue) {
-                    fUI->setParamValue("freq", freqToSonify);
+                    fUI->setParamValue("freq", (float)freqToSonifyLog / 100);
+                    fUI->setParamValue("freqsine", freqForSine);
+                    //fUI->setParamValue("freq", 170);
+                    fUI->setParamValue("gain", (float)gainToSonify / 100);
+                    fUI->setParamValue("vowel", (float)vowelToSonify / 100);
+                    // fUI->setParamValue("vowel", 2.50);
+                    fUI->setParamValue("voiceType", 1);
+                    fUI->setParamValue("vibratoFreq", 3);
+                    fUI->setParamValue("vibratoGain", 0.1);
+                } else if (dataVector2[ECGcounter] < thresholdValue && dataVector2[ECGcounter - 1] > thresholdValue && !exceededThreshold) {
+                    exceededThreshold = !exceededThreshold;
+                    DBG("Threshold exceeded");
+                    if (STDetected) {
+                        STDetected = !STDetected;
+                    }
                 } else {
                     fUI->setParamValue("freq", 0.0);
+                    fUI->setParamValue("freqsine", 0.0);
                 }
             } else {
                 // Filtering
@@ -87,13 +138,48 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                 float HI_LOPassData = HIfilterData(LOPassData);
                 
                 // Mapping
-                int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
+                // freqToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 8731, 39200);
+                freqToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 0, 201);
+                // freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
+                freqToSonifyLog = mapDataLog(200, 400, freqToSonify, 201);
+                int freqForSine = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 50, 2000);
+                gainToSonify = mapData(HI_LOPassData, dataMin1 + threshold, dataMax1, 30, 100);
+                vowelToSonify = mapData(HI_LOPassData, dataMin1 + threshold, dataMax1, 0, 100);
+                //int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
+               
+                // ST Detection
+                if (exceededThreshold) {
+                    detectSTCounter++;
+                    
+                    if (detectSTCounter < 200 && dataVector[ECGcounter] > thresholdValue && !STDetected) {
+                        STDetected = !STDetected;
+                        DBG("ST-Elevation Detected");
+                    } else if (detectSTCounter >= 200) {
+                        detectSTCounter = 0;
+                        exceededThreshold = !exceededThreshold;
+                    }
+                }
                 
                 // Applying Threshold
                 if (dataVector[ECGcounter] > thresholdValue) {
-                    fUI->setParamValue("freq", freqToSonify);
+                    fUI->setParamValue("freq", (float)freqToSonifyLog / 100);
+                    fUI->setParamValue("freqsine", freqForSine);
+                    //fUI->setParamValue("freq", 170);
+                    fUI->setParamValue("gain", (float)gainToSonify / 100);
+                    fUI->setParamValue("vowel", (float)vowelToSonify / 100);
+                    // fUI->setParamValue("vowel", 2.50);
+                    fUI->setParamValue("voiceType", 1);
+                    fUI->setParamValue("vibratoFreq", 3);
+                    fUI->setParamValue("vibratoGain", 0.1);
+                } else if (dataVector[ECGcounter] < thresholdValue && dataVector[ECGcounter - 1] > thresholdValue && !exceededThreshold) {
+                    exceededThreshold = !exceededThreshold;
+                    DBG("Threshold exceeded");
+                    if (STDetected) {
+                        STDetected = !STDetected;
+                    }
                 } else {
                     fUI->setParamValue("freq", 0.0);
+                    fUI->setParamValue("freqsine", 0.0);
                 }
             }
             

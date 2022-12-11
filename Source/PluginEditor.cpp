@@ -202,10 +202,27 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
         lengthWindow2.setButtonText(recordingLength2 + " s");
     };
     
-    dataSelector.setSelectedId(0);
-    dataSelector2.setSelectedId(0);
+    dataSelector.setSelectedId(1);
+    dataSelector2.setSelectedId(1);
     
-    //readDefaultData();
+    addAndMakeVisible(changeSound);
+    changeSound.setButtonText("Sine");
+    changeSound.onClick = [this] {
+        audioProcessor.gateSoundChoice = !audioProcessor.gateSoundChoice;
+        audioProcessor.setGateSound(audioProcessor.gateSoundChoice);
+        
+        if (audioProcessor.gateSoundChoice) {
+            changeSound.setButtonText("Vocal");
+        } else {
+            changeSound.setButtonText("Sine");
+        }
+    };
+    
+    addAndMakeVisible(changeSoundLabel);
+    changeSoundLabel.setText("Click to change sound", juce::dontSendNotification);
+    changeSoundLabel.attachToComponent(&changeSound, false);
+    
+    // readDefaultData();
 }
 
 ICUSonificationAudioProcessorEditor::~ICUSonificationAudioProcessorEditor()
@@ -262,6 +279,7 @@ void ICUSonificationAudioProcessorEditor::resized()
     playPauseBtn.setBounds(350, 300, 60, 30);
     fastForwardBtn.setBounds(430, 300, 60, 30);
     rewindBtn.setBounds(270, 300, 60, 30);
+    changeSound.setBounds(10, 200, 150, 20);
     
     loPass.setBounds(300, 350, 200, 30);
     hiPass.setBounds(300, 400, 200, 30);

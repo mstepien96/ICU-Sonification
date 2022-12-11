@@ -414,10 +414,12 @@ private:
     /// Buttons
     TextButton stateChangeBtn;
     TextButton printDataBtn;
+    TextButton changeSound;
     
     /// Button Labels
     Label stateLabel;
     Label printLabel;
+    Label changeSoundLabel;
     
     /// Sliders
     Slider loPass;

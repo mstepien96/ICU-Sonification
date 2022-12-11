@@ -70,22 +70,37 @@ public:
     void calculateHPFButterWorthCoeffs(float fCutoffFreq);
     void resetCoeffs();
 
-    int mapDataToFreq(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
-
+    int mapData(float ECGdata, float dataMin, float dataMax, int freqMin, int freqMax);  // maps data from .txt to freq in int
+    int mapDataLog(float freqMin, float freqMax, int dataToSonify, int numberOfDataPoints);
+    int freqToSonify;
+    int freqToSonifyLog;
+    int gainToSonify;
+    int vowelToSonify;
+    
     void setGate(bool gate);
+    void setGateSound(bool gateSound);
 
     unsigned long timeMilliseconds = 0;  // counter for High Resolution Timer
 
     int ECGcounter = 0;  // counter for accessing datapoints from dataArray
+    int detectSTCounter = 0;
     float samplingRate = 0.001; // was 0.004 from 250 Hz
     int modForSamplingRate = 1;
     
     bool isPlaying = false;    // turns audio on/off
+    bool gateSoundChoice = false;    // choose the sound
     bool streamPicker = false; // true chooses first data, false the second
     bool dataRead = false;     // has data been read yet?
+    bool exceededThreshold = false;
+    bool STDetected = false;
+    float threshold = 0.2;  // threshold for sonification
     
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
+    float dataMin1;
+    float dataMax1;
     std::vector<float> dataVector2; // Dynamic float array for reading in ECG data
+    float dataMin2;
+    float dataMax2;
         
     float thresholdValue = 0.5;
     
