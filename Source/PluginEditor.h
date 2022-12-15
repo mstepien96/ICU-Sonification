@@ -76,6 +76,9 @@ public:
             counter++;
             if (counter > 10000) {  // was 252 & 2502
                 audioProcessor.dataRead = true;
+                
+                //audioProcessor.dataMax1 = *std::max_element(audioProcessor.dataVector.begin(), audioProcessor.dataVector.end());
+                //audioProcessor.dataMin1 = *std::min_element(audioProcessor.dataVector.begin(), audioProcessor.dataVector.end());
                 break;
             }
         }
@@ -190,10 +193,10 @@ public:
         if (slider == &loPass) {
             //audioProcessor.calculateBIQCoeff(freqCutOff.getValue() , 0.7);
             audioProcessor.calculateLPFButterWorthCoeffs(loPass.getValue());
-        } else if (slider == &hiPass) {
+        } /*else if (slider == &hiPass) {
             //audioProcessor.calculateHPFButterWorthCoeffs(hiPass.getValue());
             audioProcessor.calculateHPFBIQCoeff(hiPass.getValue(), 0.7);
-        } else if (slider == &threshold) {
+        }*/ else if (slider == &threshold) {
             audioProcessor.thresholdValue = threshold.getValue();
         }
     }
@@ -250,9 +253,9 @@ public:
         for (int i = 0; i < audioProcessor.dataVector.size() - 1; i++) {
             
             float LOPassData1 = audioProcessor.LOfilterData(audioProcessor.dataVector[i]);
-            float HI_LOPassData1 = audioProcessor.HIfilterData(LOPassData1);
+            // float HI_LOPassData1 = audioProcessor.HIfilterData(LOPassData1);
             
-            juce::String outputString1 = juce::String(HI_LOPassData1);
+            juce::String outputString1 = juce::String(LOPassData1);
             
             output1.writeString(outputString1 + "\n");
             output1.flush();
@@ -274,9 +277,9 @@ public:
         // Putting every entry through a High Pass Filter
         for (int i = 0; i < audioProcessor.dataVector2.size() - 1; i++) {
             float LOPassData2 = audioProcessor.LOfilterData(audioProcessor.dataVector2[i]);
-            float HI_LOPassData2 = audioProcessor.HIfilterData(LOPassData2);
+            // float HI_LOPassData2 = audioProcessor.HIfilterData(LOPassData2);
             
-            juce::String outputString2 = juce::String(HI_LOPassData2);
+            juce::String outputString2 = juce::String(LOPassData2);
             
             output2.writeString(outputString2 + "\n");
             output2.flush();

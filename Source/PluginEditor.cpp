@@ -137,8 +137,8 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     
     /// LO Pass Slider
     addAndMakeVisible(loPass);
-    loPass.setRange(0.5, 15);
-    loPass.setValue(2);
+    loPass.setRange(0.5, 70);
+    loPass.setValue(20);
     loPass.setTextValueSuffix(" Hz");
     loPass.addListener(this);
     
@@ -147,6 +147,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     loPassLabel.attachToComponent(&loPass, true);
     
     /// HI Pass Slider
+    /*
     addAndMakeVisible(hiPass);
     hiPass.setRange(0.0, 0.5);
     hiPass.setValue(0.25);
@@ -156,6 +157,7 @@ ICUSonificationAudioProcessorEditor::ICUSonificationAudioProcessorEditor (ICUSon
     addAndMakeVisible(hiPassLabel);
     hiPassLabel.setText("HI Pass", juce::dontSendNotification);
     hiPassLabel.attachToComponent(&hiPass, true);
+     */
     
     /// Threshold slider
     addAndMakeVisible(threshold);

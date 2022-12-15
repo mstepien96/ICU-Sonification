@@ -85,16 +85,16 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
             if (streamPicker) {
                 // Filtering
                 float LOPassData = LOfilterData(dataVector2[ECGcounter]);
-                float HI_LOPassData = HIfilterData(LOPassData);
+                // float HI_LOPassData = HIfilterData(LOPassData);
                 
                 // Mapping
-                freqToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 0, 201);
+                freqToSonify = mapData(LOPassData, thresholdValue, dataMax2, 0, 201);
                 // freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
                 freqToSonifyLog = mapDataLog(200, 400, freqToSonify, 201);
                 
-                int freqForSine = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 50, 2000);
-                gainToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 30, 100);
-                vowelToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 0, 100);
+                // int freqForSine = mapData(LOPassData, thresholdValue, dataMax2, 400, 2000);
+                //gainToSonify = mapData(LOPassData, thresholdValue, dataMax2, 60, 100);
+                vowelToSonify = mapData(LOPassData, thresholdValue, dataMax2, 0, 125);
                 
                 //int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
                 
@@ -112,11 +112,11 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                 }
                 
                 // Applying Threshold
-                if (dataVector2[ECGcounter] > thresholdValue) {
+                if (LOPassData > thresholdValue) {
                     fUI->setParamValue("freq", (float)freqToSonifyLog / 100);
-                    fUI->setParamValue("freqsine", freqForSine);
+                    fUI->setParamValue("freqsine", (float)freqToSonifyLog / 100);
                     //fUI->setParamValue("freq", 170);
-                    fUI->setParamValue("gain", (float)gainToSonify / 100);
+                    fUI->setParamValue("gain", 1);
                     fUI->setParamValue("vowel", (float)vowelToSonify / 100);
                     // fUI->setParamValue("vowel", 2.50);
                     fUI->setParamValue("voiceType", 1);
@@ -135,16 +135,16 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
             } else {
                 // Filtering
                 float LOPassData = LOfilterData(dataVector[ECGcounter]);
-                float HI_LOPassData = HIfilterData(LOPassData);
+                // float HI_LOPassData = HIfilterData(LOPassData);
                 
-                // Mapping
+                /// Mapping
                 // freqToSonify = mapData(dataVector[ECGcounter], dataMin1 + threshold, dataMax1, 8731, 39200);
-                freqToSonify = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 0, 201);
+                freqToSonify = mapData(LOPassData, thresholdValue, dataMax2, 0, 201);
                 // freqToSonifyLog = mapDataLog(87.31, 392, freqToSonify, 201);
                 freqToSonifyLog = mapDataLog(200, 400, freqToSonify, 201);
-                int freqForSine = mapData(HI_LOPassData, dataMin2 + threshold, dataMax2, 50, 2000);
-                gainToSonify = mapData(HI_LOPassData, dataMin1 + threshold, dataMax1, 30, 100);
-                vowelToSonify = mapData(HI_LOPassData, dataMin1 + threshold, dataMax1, 0, 100);
+                //int freqForSine = mapData(LOPassData, thresholdValue, dataMax2, 1000, 2000);
+                //gainToSonify = mapData(LOPassData, thresholdValue, dataMax1, 60, 100);
+                vowelToSonify = mapData(LOPassData, thresholdValue, dataMax1, 0, 125);
                 //int freqToSonify = mapDataToFreq(HI_LOPassData, -0.1, 0.5, 50, 2000);
                
                 // ST Detection
@@ -161,11 +161,11 @@ void ICUSonificationAudioProcessor::hiResTimerCallback() {
                 }
                 
                 // Applying Threshold
-                if (dataVector[ECGcounter] > thresholdValue) {
+                if (LOPassData > thresholdValue) {
                     fUI->setParamValue("freq", (float)freqToSonifyLog / 100);
-                    fUI->setParamValue("freqsine", freqForSine);
+                    fUI->setParamValue("freqsine", (float)freqToSonifyLog / 100);
                     //fUI->setParamValue("freq", 170);
-                    fUI->setParamValue("gain", (float)gainToSonify / 100);
+                    fUI->setParamValue("gain", 1);
                     fUI->setParamValue("vowel", (float)vowelToSonify / 100);
                     // fUI->setParamValue("vowel", 2.50);
                     fUI->setParamValue("voiceType", 1);
@@ -210,7 +210,7 @@ float ICUSonificationAudioProcessor::LOfilterData(float input) {
     return y_n;
 }
 
-float ICUSonificationAudioProcessor::HIfilterData(float input) {
+/* float ICUSonificationAudioProcessor::HIfilterData(float input) {
     
     float y_n = HP_a0 * input + HP_a1 * HIinput_z1 + HP_a2 * HIinput_z2 - HP_b1 * HIoutput_z1 - HP_b2 * HIoutput_z2;
     
@@ -221,8 +221,7 @@ float ICUSonificationAudioProcessor::HIfilterData(float input) {
     HIinput_z1 = input;
     
     return y_n;
-}
-
+} */
 void ICUSonificationAudioProcessor::calculateLPFBIQCoeff(float fCutoffFreq, float fQ) {
     // use same terms as in book:
     float theta_c = 2.0 * M_PI * fCutoffFreq / 1000;

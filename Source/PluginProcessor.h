@@ -62,7 +62,7 @@ public:
     void hiResTimerCallback() override;  // High Resolution Timer for sending data from JUCE to Faust engine
     
     float LOfilterData(float input);
-    float HIfilterData(float input);
+    // float HIfilterData(float input);
     
     void calculateLPFBIQCoeff(float fCutoffFreq, float fQ);
     void calculateHPFBIQCoeff(float fCutoffFreq, float fQ);
@@ -93,14 +93,13 @@ public:
     bool dataRead = false;     // has data been read yet?
     bool exceededThreshold = false;
     bool STDetected = false;
-    float threshold = 0.2;  // threshold for sonification
     
     std::vector<float> dataVector; // Dynamic float array for reading in ECG data
-    float dataMin1;
-    float dataMax1;
+    float dataMin1 = -0.2;
+    float dataMax1 = 1.3;
     std::vector<float> dataVector2; // Dynamic float array for reading in ECG data
-    float dataMin2;
-    float dataMax2;
+    float dataMin2 = -0.2;
+    float dataMax2 = 1.3;
         
     float thresholdValue = 0.5;
     
